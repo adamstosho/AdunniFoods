@@ -1,0 +1,32 @@
+version: "3.9"
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  app:
+    build: .
+    depends_on:
+      - mongo
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - MONGODB_URI=mongodb://mongo:27017/adunni_foods
+      - JWT_SECRET=change_me_please
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - WHATSAPP_PHONE=${WHATSAPP_PHONE}
+      - CLIENT_ORIGIN=http://localhost:3000
+    ports:
+      - "5000:5000"
+    command: ["node", "dist/server.js"]
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
+
+
+

@@ -1,0 +1,126 @@
+openapi: 3.0.3
+info:
+  title: Adunni Foods API
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000/api
+paths:
+  /auth/login:
+    post:
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+      responses:
+        '200':
+          description: OK
+  /products:
+    get:
+      summary: List products
+      responses:
+        '200': { description: OK }
+    post:
+      summary: Create product (admin)
+      responses:
+        '201': { description: Created }
+  /products/{id}:
+    get:
+      summary: Get product by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+    put:
+      summary: Update product (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+    delete:
+      summary: Delete product (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: No Content }
+  /orders:
+    get:
+      summary: List orders (admin)
+      responses:
+        '200': { description: OK }
+    post:
+      summary: Create order and get WhatsApp URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreate'
+      responses:
+        '201': { description: Created }
+  /orders/{id}:
+    get:
+      summary: Get order by id (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+    put:
+      summary: Update order status (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+  /orders/export/csv:
+    get:
+      summary: Export orders as CSV (admin)
+      responses:
+        '200': { description: OK }
+components:
+  schemas:
+    Login:
+      type: object
+      properties:
+        username: { type: string }
+        password: { type: string }
+      required: [username, password]
+    OrderCreate:
+      type: object
+      properties:
+        customerName: { type: string }
+        customerPhone: { type: string }
+        address: { type: string }
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              product: { type: string }
+              name: { type: string }
+              qty: { type: integer }
+              price: { type: number }
+            required: [product, name, qty, price]
+        totalAmount: { type: number }
+        paymentMethod:
+          type: string
+          enum: [bank_transfer, mobile_money, cash_on_delivery]
+      required: [customerName, customerPhone, address, items, totalAmount, paymentMethod]
+
+

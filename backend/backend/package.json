@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "adunni-foods-api": "file:.."
+  }
+}
