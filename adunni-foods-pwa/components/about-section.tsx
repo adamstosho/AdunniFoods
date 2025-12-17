@@ -68,8 +68,8 @@ export function AboutSection() {
           <div className="relative">
             <div className="aspect-square rounded-2xl overflow-hidden">
               <img
-                src="/authentic-nigerian-plantain-chips.png"
-                alt="Nigerian woman preparing plantain chips with fresh ingredients"
+                src="/our-story.jpg"
+                alt="Our Story - Adunni Foods"
                 className="w-full h-full object-cover"
               />
             </div>
