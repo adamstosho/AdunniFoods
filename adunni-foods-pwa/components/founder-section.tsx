@@ -18,7 +18,7 @@ export function FounderSection() {
               <img
                 src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202025-08-08%20at%2014.04.57_a03fe5a9.jpg-QTaqzv5ALYz4byHlvNXSw2qZJ6Ur1N.jpeg"
                 alt="Adunni Foods Founder - Professional chef in white coat with plantain chip products"
-                className="w-full h-[600px] object-cover"
+                className="w-full h-[400px] lg:h-[600px] object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
             </div>

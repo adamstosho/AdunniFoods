@@ -76,14 +76,7 @@ export function ImageGallery() {
   // Auto-advance gallery for a smooth, transitional feel
   useEffect(() => {
     const id = setInterval(() => {
-      setCurrentIndex((prev) => {
-        const next = (prev + 1) % galleryImages.length
-        const el = itemRefs.current[next]
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" })
-        }
-        return next
-      })
+      setCurrentIndex((prev) => (prev + 1) % galleryImages.length)
     }, 5000)
 
     return () => clearInterval(id)
@@ -108,9 +101,8 @@ export function ImageGallery() {
                 ref={(el) => {
                   itemRefs.current[index] = el
                 }}
-                className={`flex-shrink-0 w-80 h-64 relative group cursor-pointer rounded-xl overflow-hidden shadow-lg transition-all duration-500 ${
-                  index === currentIndex ? "scale-105 shadow-xl" : "scale-95 opacity-80"
-                }`}
+                className={`flex-shrink-0 w-80 h-64 relative group cursor-pointer rounded-xl overflow-hidden shadow-lg transition-all duration-500 ${index === currentIndex ? "scale-105 shadow-xl" : "scale-95 opacity-80"
+                  }`}
                 onClick={() => openModal(index)}
               >
                 <img

@@ -13,7 +13,7 @@ export function HeroSection() {
   }, [])
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 lg:pt-0">
       <div className="absolute inset-0 z-0">
         <img
           src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image.png-3JuRMrq25YrIGsCYA1lXAUNGQNkeqg.jpeg"
@@ -33,9 +33,8 @@ export function HeroSection() {
       {/* Content */}
       <div className="relative z-20 container mx-auto px-4 text-center">
         <div
-          className={`transition-all duration-1000 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+          className={`transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
         >
           <h1 className="font-heading font-bold text-4xl md:text-6xl lg:text-7xl text-white mb-6 leading-tight">
             <span className="block text-primary drop-shadow-lg">Adunni Foods</span>
@@ -89,9 +88,8 @@ export function HeroSection() {
         </div>
 
         <div
-          className={`mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 transition-all duration-1000 delay-500 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+          className={`mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 transition-all duration-1000 delay-500 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
         >
           <div className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
             <div className="text-3xl md:text-4xl font-bold text-primary mb-2">2000+</div>
