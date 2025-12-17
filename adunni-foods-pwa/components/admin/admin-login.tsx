@@ -55,8 +55,8 @@ export function AdminLogin() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
-      <Card className="w-full max-w-md">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-amber-50 via-background to-cyan-50 p-4">
+      <Card className="w-full max-w-md border-border/60 shadow-md transition-all duration-300 hover:shadow-lg">
         <CardHeader className="text-center">
           <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
             <img

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ChevronLeft, ChevronRight, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -41,12 +41,28 @@ export function ImageGallery() {
   const [selectedImage, setSelectedImage] = useState<number | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
 
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([])
+
   const nextImage = () => {
-    setCurrentIndex((prev) => (prev + 1) % galleryImages.length)
+    setCurrentIndex((prev) => {
+      const next = (prev + 1) % galleryImages.length
+      const el = itemRefs.current[next]
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" })
+      }
+      return next
+    })
   }
 
   const prevImage = () => {
-    setCurrentIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length)
+    setCurrentIndex((prev) => {
+      const next = (prev - 1 + galleryImages.length) % galleryImages.length
+      const el = itemRefs.current[next]
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" })
+      }
+      return next
+    })
   }
 
   const openModal = (index: number) => {
@@ -56,6 +72,22 @@ export function ImageGallery() {
   const closeModal = () => {
     setSelectedImage(null)
   }
+
+  // Auto-advance gallery for a smooth, transitional feel
+  useEffect(() => {
+    const id = setInterval(() => {
+      setCurrentIndex((prev) => {
+        const next = (prev + 1) % galleryImages.length
+        const el = itemRefs.current[next]
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" })
+        }
+        return next
+      })
+    }, 5000)
+
+    return () => clearInterval(id)
+  }, [])
 
   return (
     <section className="py-16 bg-background">
@@ -73,13 +105,18 @@ export function ImageGallery() {
             {galleryImages.map((image, index) => (
               <div
                 key={index}
-                className="flex-shrink-0 w-80 h-64 relative group cursor-pointer rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                ref={(el) => {
+                  itemRefs.current[index] = el
+                }}
+                className={`flex-shrink-0 w-80 h-64 relative group cursor-pointer rounded-xl overflow-hidden shadow-lg transition-all duration-500 ${
+                  index === currentIndex ? "scale-105 shadow-xl" : "scale-95 opacity-80"
+                }`}
                 onClick={() => openModal(index)}
               >
                 <img
                   src={image.src || "/placeholder.svg"}
                   alt={image.alt}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">

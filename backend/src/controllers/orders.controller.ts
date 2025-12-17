@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import * as OrderService from '../services/order.service';
 import { buildWhatsAppUrl } from '../services/whatsapp.service';
 import email from '../services/email.service';
+import * as NotificationService from '../services/notification.service';
 
 export async function create(req: Request, res: Response) {
   const order = await OrderService.createOrder(req.body);
@@ -11,6 +12,17 @@ export async function create(req: Request, res: Response) {
     orderId: (order._id as any).toString(),
     customerName: order.customerName,
     totalAmount: order.totalAmount,
+  });
+  void NotificationService.createNotification({
+    type: 'order_created',
+    title: 'New order received',
+    message: `New order from ${order.customerName} - ₦${order.totalAmount.toFixed(2)}`,
+    data: {
+      orderId: (order._id as any).toString(),
+      customerName: order.customerName,
+      totalAmount: order.totalAmount,
+      createdAt: order.createdAt,
+    },
   });
   res.status(201).json({ message: 'created', response: { orderId: order._id, whatsappUrl } });
 }
@@ -29,6 +41,24 @@ export async function getById(req: Request, res: Response) {
 export async function updateStatus(req: Request, res: Response) {
   const order = await OrderService.updateOrderStatus(req.params.id, req.body.status);
   if (!order) return res.status(404).json({ message: 'Not found' });
+
+  void email.sendAdminOrderStatusEmail('admin@adunnifoods.com', {
+    orderId: (order._id as any).toString(),
+    status: order.status,
+    customerName: order.customerName,
+  });
+
+  void NotificationService.createNotification({
+    type: 'order_status_updated',
+    title: 'Order status updated',
+    message: `Order #${(order._id as any).toString().slice(-8).toUpperCase()} is now ${order.status}`,
+    data: {
+      orderId: (order._id as any).toString(),
+      status: order.status,
+      customerName: order.customerName,
+    },
+  });
+
   res.json({ message: 'updated', response: order });
 }
 

@@ -30,6 +30,21 @@ export interface Order {
   createdAt?: string
 }
 
+export interface AdminProfile {
+  username: string
+  createdAt: string
+}
+
+export interface Notification {
+  _id: string
+  type: string
+  title: string
+  message: string
+  data?: Record<string, unknown>
+  read: boolean
+  createdAt: string
+}
+
 export interface ApiResponse<T> {
   success: boolean
   data?: T
@@ -41,75 +56,6 @@ export interface ApiResponse<T> {
     pages: number
   }
 }
-
-const MOCK_PRODUCTS: Product[] = [
-  {
-    _id: "1",
-    name: "Original Plantain Chips",
-    slug: "original-plantain-chips",
-    description:
-      "Our classic plantain chips made with premium plantains, lightly salted and perfectly crispy. A timeless favorite that captures the natural sweetness of ripe plantains.",
-    price: 25.0,
-    stock: 50,
-    images: ["https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-CJk4Pi61qi99IlMvr0vpXHN9M5lSHK.png"],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    _id: "2",
-    name: "Spicy Plantain Chips",
-    slug: "spicy-plantain-chips",
-    description:
-      "For those who love a kick! Our spicy plantain chips are seasoned with a blend of African spices and scotch bonnet peppers for the perfect heat.",
-    price: 30.0,
-    stock: 35,
-    images: ["https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-EDfrGac5gpjK69TgRIU2VKF7rEeOgx.png"],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    _id: "3",
-    name: "Pepper Plantain Chips",
-    slug: "pepper-plantain-chips",
-    description:
-      "A medium-heat option with black pepper and aromatic spices. Perfect balance of flavor and spice that appeals to everyone.",
-    price: 28.0,
-    stock: 42,
-    images: ["https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image.png-3JuRMrq25YrIGsCYA1lXAUNGQNkeqg.jpeg"],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    _id: "4",
-    name: "Honey Glazed Plantain Chips",
-    slug: "honey-glazed-plantain-chips",
-    description:
-      "A sweet twist on our classic recipe. These chips are lightly glazed with pure honey for a delightful sweet and salty combination.",
-    price: 35.0,
-    stock: 28,
-    images: ["https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-CJk4Pi61qi99IlMvr0vpXHN9M5lSHK.png"],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    _id: "5",
-    name: "Garlic Herb Plantain Chips",
-    slug: "garlic-herb-plantain-chips",
-    description:
-      "Savory plantain chips seasoned with roasted garlic, thyme, and other aromatic herbs. A gourmet option for sophisticated palates.",
-    price: 32.0,
-    stock: 38,
-    images: ["https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image.png-3JuRMrq25YrIGsCYA1lXAUNGQNkeqg.jpeg"],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    _id: "6",
-    name: "BBQ Plantain Chips",
-    slug: "bbq-plantain-chips",
-    description:
-      "Smoky barbecue flavor meets crispy plantain perfection. Our special BBQ seasoning blend creates an irresistible snack.",
-    price: 30.0,
-    stock: 45,
-    images: ["https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-EDfrGac5gpjK69TgRIU2VKF7rEeOgx.png"],
-    createdAt: new Date().toISOString(),
-  },
-]
 
 class ApiClient {
   private baseURL: string
@@ -147,45 +93,33 @@ class ApiClient {
       headers.Authorization = `Bearer ${this.token}`
     }
 
-    try {
-      console.log("[v0] Making API request to:", url)
-      const response = await fetch(url, {
-        ...options,
-        headers,
-      })
+    console.log("[v0] Making API request to:", url)
+    const response = await fetch(url, {
+      ...options,
+      headers,
+    })
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const raw = await response.json()
-      console.log("[v0] API request successful")
-      // Normalize backend shape { message, response }
-      if (raw && typeof raw === 'object' && ('response' in raw || 'message' in raw)) {
-        const normalized: ApiResponse<T> = {
-          success: true,
-          data: (raw.response as T) ?? undefined,
-          message: typeof raw.message === 'string' ? raw.message : undefined,
-        }
-        return normalized
-      }
-      // If already in ApiResponse shape, return as-is
-      if (raw && typeof raw === 'object' && ('success' in raw)) {
-        return raw as ApiResponse<T>
-      }
-      // Fallback: wrap raw as data
-      return { success: true, data: raw as T }
-    } catch (error) {
-      console.log("[v0] API request failed, using mock data:", error)
-      if (endpoint.includes("/products") && !endpoint.includes("/products/")) {
-        return {
-          success: true,
-          data: MOCK_PRODUCTS as T,
-          message: "Using demo data - API unavailable",
-        }
-      }
-      throw error
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
     }
+
+    const raw = await response.json()
+    console.log("[v0] API request successful")
+    // Normalize backend shape { message, response }
+    if (raw && typeof raw === "object" && ("response" in raw || "message" in raw)) {
+      const normalized: ApiResponse<T> = {
+        success: true,
+        data: (raw.response as T) ?? undefined,
+        message: typeof (raw as any).message === "string" ? (raw as any).message : undefined,
+      }
+      return normalized
+    }
+    // If already in ApiResponse shape, return as-is
+    if (raw && typeof raw === "object" && "success" in raw) {
+      return raw as ApiResponse<T>
+    }
+    // Fallback: wrap raw as data
+    return { success: true, data: raw as T }
   }
 
   // Product methods
@@ -204,19 +138,7 @@ class ApiClient {
   }
 
   async getProduct(slug: string): Promise<ApiResponse<Product>> {
-    try {
-      return await this.request<Product>(`/products/${slug}`)
-    } catch (error) {
-      const mockProduct = MOCK_PRODUCTS.find((p) => p.slug === slug || p._id === slug)
-      if (mockProduct) {
-        return {
-          success: true,
-          data: mockProduct,
-          message: "Using demo data - API unavailable",
-        }
-      }
-      throw error
-    }
+    return this.request<Product>(`/products/${slug}`)
   }
 
   async createProduct(product: Omit<Product, '_id' | 'createdAt'>): Promise<ApiResponse<Product>> {
@@ -255,6 +177,26 @@ class ApiClient {
     return this.request<Order>(`/orders/${id}` , {
       method: "PUT",
       body: JSON.stringify({ status }),
+    })
+  }
+
+  // Notification methods
+  async getNotifications(params?: { limit?: number }): Promise<ApiResponse<Notification[]>> {
+    const searchParams = new URLSearchParams()
+    if (params?.limit) searchParams.set("limit", params.limit.toString())
+    const query = searchParams.toString()
+    return this.request<Notification[]>(`/notifications${query ? `?${query}` : ""}`)
+  }
+
+  async markNotificationRead(id: string): Promise<ApiResponse<Notification>> {
+    return this.request<Notification>(`/notifications/${id}/read`, {
+      method: "POST",
+    })
+  }
+
+  async markAllNotificationsRead(): Promise<ApiResponse<null>> {
+    return this.request<null>("/notifications/read-all", {
+      method: "POST",
     })
   }
 
@@ -311,6 +253,23 @@ class ApiClient {
     })
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
     return await response.json()
+  }
+
+  // Settings methods
+  async getAdminProfile(): Promise<ApiResponse<AdminProfile>> {
+    return this.request<AdminProfile>("/settings/profile")
+  }
+
+  async updateAdminCredentials(payload: {
+    currentPassword: string
+    newUsername: string
+    newPassword: string
+    confirmNewPassword: string
+  }): Promise<ApiResponse<{ username: string }>> {
+    return this.request<{ username: string }>("/settings/credentials", {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    })
   }
 }
 

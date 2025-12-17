@@ -116,13 +116,13 @@ export function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="space-y-6 animate-pulse">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-6">
-                <div className="h-4 bg-muted rounded animate-pulse mb-2" />
-                <div className="h-8 bg-muted rounded animate-pulse" />
+            <Card key={i} className="overflow-hidden rounded-xl border-border/60 shadow-sm">
+              <CardContent className="p-6 space-y-3">
+                <div className="h-4 w-24 rounded bg-muted" />
+                <div className="h-8 w-32 rounded bg-muted" />
               </CardContent>
             </Card>
           ))}
@@ -134,22 +134,25 @@ export function AdminDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
+      <div className="space-y-1">
         <h1 className="font-heading font-bold text-3xl text-foreground">Dashboard</h1>
         <p className="text-muted-foreground">Welcome back! Here's what's happening with your business.</p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {statCards.map((stat, index) => (
-          <Card key={index}>
+          <Card
+            key={index}
+            className="overflow-hidden rounded-xl border-border/60 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+          >
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
                   <p className="text-2xl font-bold">{stat.value}</p>
                 </div>
-                <div className={`p-3 rounded-full ${stat.bgColor}`}>
+                <div className={`rounded-full p-3 ${stat.bgColor}`}>
                   <stat.icon className={`w-6 h-6 ${stat.color}`} />
                 </div>
               </div>
@@ -160,7 +163,7 @@ export function AdminDashboard() {
 
       {/* Alerts */}
       {stats.lowStockProducts > 0 && (
-        <Card className="border-yellow-200 bg-yellow-50">
+        <Card className="border-yellow-200 bg-yellow-50/80 shadow-sm backdrop-blur">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-yellow-600" />
@@ -178,7 +181,7 @@ export function AdminDashboard() {
         </Card>
       )}
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid gap-6 lg:grid-cols-2">
         {/* Recent Orders */}
         <Card>
           <CardHeader>

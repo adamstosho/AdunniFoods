@@ -47,13 +47,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${spaceGrotesk.variable} ${dmSans.variable}`}>
       <head>
-        <style>{`
-html {
-  font-family: ${dmSans.style.fontFamily};
-  --font-heading: ${spaceGrotesk.style.fontFamily};
-  --font-body: ${dmSans.style.fontFamily};
-}
-        `}</style>
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/adunnilogo%20png.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/adunnilogo%20png.png" />

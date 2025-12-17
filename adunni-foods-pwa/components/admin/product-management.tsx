@@ -47,15 +47,15 @@ export function ProductManagement() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="h-8 bg-muted rounded animate-pulse w-48" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="space-y-6 animate-pulse">
+        <div className="h-8 w-48 rounded bg-muted" />
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {[...Array(6)].map((_, i) => (
-            <Card key={i}>
-              <div className="aspect-square bg-muted animate-pulse" />
-              <CardContent className="p-4">
-                <div className="h-4 bg-muted rounded animate-pulse mb-2" />
-                <div className="h-3 bg-muted rounded animate-pulse w-2/3" />
+            <Card key={i} className="overflow-hidden rounded-xl border-border/60 shadow-sm">
+              <div className="aspect-square bg-muted" />
+              <CardContent className="p-4 space-y-3">
+                <div className="h-4 w-32 rounded bg-muted" />
+                <div className="h-3 w-2/3 rounded bg-muted" />
               </CardContent>
             </Card>
           ))}
@@ -67,14 +67,14 @@ export function ProductManagement() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-heading font-bold text-3xl text-foreground">Products</h1>
           <p className="text-muted-foreground">Manage your plantain chips inventory</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
               <Plus className="w-4 h-4 mr-2" />
               Add Product
             </Button>
@@ -115,9 +115,12 @@ export function ProductManagement() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredProducts.map((product) => (
-            <Card key={product._id} className="overflow-hidden">
+            <Card
+              key={product._id}
+              className="overflow-hidden rounded-xl border-border/60 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+            >
               <div className="aspect-square bg-muted">
                 <img
                   src={
@@ -128,9 +131,9 @@ export function ProductManagement() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-semibold text-lg">{product.name}</h3>
+              <CardContent className="p-4 space-y-3">
+                <div className="mb-1 flex items-start justify-between gap-2">
+                  <h3 className="font-semibold text-lg leading-snug line-clamp-2">{product.name}</h3>
                   <Badge variant={product.stock > 10 ? "secondary" : product.stock > 0 ? "destructive" : "outline"}>
                     {product.stock} in stock
                   </Badge>

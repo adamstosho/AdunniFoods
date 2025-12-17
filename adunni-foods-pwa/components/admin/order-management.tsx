@@ -97,14 +97,14 @@ export function OrderManagement() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="h-8 bg-muted rounded animate-pulse w-48" />
+      <div className="space-y-6 animate-pulse">
+        <div className="h-8 w-48 rounded bg-muted" />
         <div className="space-y-4">
           {[...Array(5)].map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-4">
-                <div className="h-4 bg-muted rounded animate-pulse mb-2" />
-                <div className="h-3 bg-muted rounded animate-pulse w-2/3" />
+            <Card key={i} className="overflow-hidden rounded-xl border-border/60 shadow-sm">
+              <CardContent className="p-4 space-y-3">
+                <div className="h-4 w-32 rounded bg-muted" />
+                <div className="h-3 w-2/3 rounded bg-muted" />
               </CardContent>
             </Card>
           ))}
@@ -116,12 +116,16 @@ export function OrderManagement() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-heading font-bold text-3xl text-foreground">Orders</h1>
           <p className="text-muted-foreground">Manage customer orders and deliveries</p>
         </div>
-        <Button variant="outline" className="bg-transparent" onClick={exportCsv}>
+        <Button
+          variant="outline"
+          className="bg-transparent w-full justify-center sm:w-auto"
+          onClick={exportCsv}
+        >
           <Download className="w-4 h-4 mr-2" />
           Export CSV
         </Button>
@@ -129,7 +133,7 @@ export function OrderManagement() {
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
+        <div className="relative flex-1 min-w-0">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <Input
             placeholder="Search orders by customer, phone, or order ID..."
@@ -166,11 +170,13 @@ export function OrderManagement() {
         <div className="space-y-4">
           {filteredOrders.map((order) => (
             <Card key={order._id}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="font-semibold text-lg">#{order._id?.slice(-8).toUpperCase()}</h3>
-                    <p className="text-muted-foreground">
+              <CardContent className="p-6 space-y-4">
+                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-lg break-words">
+                      #{order._id?.slice(-8).toUpperCase()}
+                    </h3>
+                    <p className="text-muted-foreground text-sm">
                       {new Date(order.createdAt || "").toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
@@ -180,39 +186,54 @@ export function OrderManagement() {
                       })}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Badge className={getStatusColor(order.status || "Pending")}>{order.status}</Badge>
-                    <span className="text-xl font-bold text-primary">₦{order.totalAmount.toFixed(2)}</span>
+                  <div className="flex items-center gap-3 md:justify-end">
+                    <Badge className={getStatusColor(order.status || "Pending")}>
+                      {order.status}
+                    </Badge>
+                    <span className="text-xl font-bold text-primary whitespace-nowrap">
+                      ₦{order.totalAmount.toFixed(2)}
+                    </span>
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4 mb-4">
-                  <div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-1">
                     <h4 className="font-medium mb-2">Customer Information</h4>
-                    <p className="text-sm text-muted-foreground">{order.customerName}</p>
-                    <p className="text-sm text-muted-foreground">{order.customerPhone}</p>
-                    <p className="text-sm text-muted-foreground">{order.address}</p>
+                    <p className="text-sm text-muted-foreground break-words">
+                      {order.customerName}
+                    </p>
+                    <p className="text-sm text-muted-foreground break-words">
+                      {order.customerPhone}
+                    </p>
+                    <p className="text-sm text-muted-foreground break-words line-clamp-3">
+                      {order.address}
+                    </p>
                   </div>
-                  <div>
+                  <div className="space-y-2">
                     <h4 className="font-medium mb-2">Order Items</h4>
-                    <div className="space-y-1">
+                    <div className="space-y-1 max-h-32 overflow-y-auto pr-1">
                       {order.items.map((item, index) => (
-                        <p key={index} className="text-sm text-muted-foreground">
+                        <p
+                          key={index}
+                          className="text-sm text-muted-foreground flex justify-between gap-2"
+                        >
+                          <span className="truncate">
                           {item.qty}x {item.name} - ₦{(item.price * item.qty).toFixed(2)}
+                          </span>
                         </p>
                       ))}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm text-muted-foreground">Payment:</span>
                     <Badge variant="outline" className="capitalize">
                       {order.paymentMethod.replace("_", " ")}
                     </Badge>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2 justify-start md:justify-end">
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button variant="outline" size="sm" onClick={() => setSelectedOrder(order)}>
@@ -227,7 +248,10 @@ export function OrderManagement() {
                         {selectedOrder && <OrderDetailsDialog order={selectedOrder} />}
                       </DialogContent>
                     </Dialog>
-                    <Select value={order.status} onValueChange={(value) => updateOrderStatus(order._id!, value)}>
+                    <Select
+                      value={order.status}
+                      onValueChange={(value) => updateOrderStatus(order._id!, value)}
+                    >
                       <SelectTrigger className="w-32">
                         <SelectValue />
                       </SelectTrigger>

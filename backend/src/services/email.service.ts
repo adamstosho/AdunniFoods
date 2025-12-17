@@ -5,7 +5,10 @@ if (config.sendgridApiKey) {
   sgMail.setApiKey(config.sendgridApiKey);
 }
 
-export async function sendAdminNewOrderEmail(to: string, payload: { orderId: string; customerName: string; totalAmount: number }) {
+export async function sendAdminNewOrderEmail(
+  to: string,
+  payload: { orderId: string; customerName: string; totalAmount: number },
+) {
   const msg = {
     to,
     from: 'no-reply@adunnifoods.com',
@@ -27,6 +30,20 @@ export async function sendCustomerOrderEmail(to: string, payload: { orderId: str
   await sgMail.send(msg);
 }
 
-export default { sendAdminNewOrderEmail, sendCustomerOrderEmail };
+export async function sendAdminOrderStatusEmail(
+  to: string,
+  payload: { orderId: string; status: string; customerName: string },
+) {
+  const msg = {
+    to,
+    from: 'no-reply@adunnifoods.com',
+    subject: `Order #${payload.orderId} status updated`,
+    text: `Order for ${payload.customerName} is now ${payload.status}.`,
+  };
+  if (!config.sendgridApiKey) return; // noop for tests/dev without key
+  await sgMail.send(msg);
+}
+
+export default { sendAdminNewOrderEmail, sendCustomerOrderEmail, sendAdminOrderStatusEmail };
 
 
