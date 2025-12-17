@@ -11,14 +11,17 @@ export async function loginAdmin(username: string, password: string) {
   return { token };
 }
 
-export async function createAdmin(username: string, password: string) {
+export async function checkAdminExists(username: string) {
   const existing = await Admin.findOne({ username });
-  if (existing) return existing;
+  return existing;
+}
+
+export async function createAdmin(username: string, password: string) {
   const passwordHash = await bcrypt.hash(password, 10);
   const admin = await Admin.create({ username, passwordHash });
   return admin;
 }
 
-export default { loginAdmin, createAdmin };
+export default { loginAdmin, createAdmin, checkAdminExists };
 
 

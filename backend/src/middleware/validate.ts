@@ -1,7 +1,7 @@
-import { AnyZodObject, ZodError } from 'zod';
+import { AnyZodObject, ZodError, ZodSchema } from 'zod';
 import { Request, Response, NextFunction } from 'express';
 
-export function validate(schema: AnyZodObject, source: 'body' | 'query' | 'params' = 'body') {
+export function validate(schema: ZodSchema, source: 'body' | 'query' | 'params' = 'body') {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
       const parsed = schema.parse((req as any)[source]);
