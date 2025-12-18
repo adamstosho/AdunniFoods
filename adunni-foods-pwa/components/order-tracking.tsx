@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Search, Package, Phone, MessageCircle } from "lucide-react"
 import { OrderDetails } from "@/components/order-details"
-import type { Order } from "@/lib/api"
+import { api, type Order } from "@/lib/api"
 import { toast } from "sonner"
 
 const trackingSchema = z.object({
@@ -20,10 +20,13 @@ const trackingSchema = z.object({
 
 type TrackingFormData = z.infer<typeof trackingSchema>
 
+import { useSettings } from "@/lib/hooks"
+
 export function OrderTracking() {
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
+  const { settings } = useSettings()
 
   const {
     register,
@@ -39,44 +42,17 @@ export function OrderTracking() {
     setSearched(true)
 
     try {
-      // Since the API doesn't have a public order tracking endpoint,
-      // we'll simulate the tracking functionality
-      // In a real app, you'd have a public endpoint that verifies phone number
-
-      // For demo purposes, we'll create a mock order
-      const mockOrder: Order = {
-        _id: data.orderId,
-        customerName: "John Doe",
-        customerPhone: data.customerPhone,
-        address: "123 Main Street, Lagos, Nigeria",
-        items: [
-          {
-            product: "1",
-            name: "Spicy Plantain Chips",
-            qty: 2,
-            price: 15.99,
-          },
-          {
-            product: "2",
-            name: "Sweet Plantain Chips",
-            qty: 1,
-            price: 12.99,
-          },
-        ],
-        totalAmount: 44.97,
-        paymentMethod: "bank_transfer",
-        status: "Packed",
-        createdAt: new Date().toISOString(),
+      const response = await api.trackOrder(data.orderId, data.customerPhone)
+      if (response.success && response.data) {
+        setOrder(response.data)
+        toast.success("Order found!")
+      } else {
+        setOrder(null)
+        toast.error(response.message || "Order not found. Please check your details.")
       }
-
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      setOrder(mockOrder)
-      toast.success("Order found!")
     } catch (error) {
       console.error("Tracking error:", error)
-      toast.error("Order not found. Please check your details and try again.")
+      toast.error("An error occurred while tracking. Please try again.")
       setOrder(null)
     } finally {
       setLoading(false)
@@ -119,12 +95,12 @@ export function OrderTracking() {
                   <Input
                     id="orderId"
                     {...register("orderId")}
-                    placeholder="Enter your order ID"
+                    placeholder="Enter your order ID (e.g. 658...)"
                     className={errors.orderId ? "border-destructive" : ""}
                   />
                   {errors.orderId && <p className="text-sm text-destructive">{errors.orderId.message}</p>}
                   <p className="text-xs text-muted-foreground">
-                    You can find your order ID in the confirmation message or email
+                    You can find your order ID in the confirmation message sent to your WhatsApp
                   </p>
                 </div>
 
@@ -133,7 +109,7 @@ export function OrderTracking() {
                   <Input
                     id="customerPhone"
                     {...register("customerPhone")}
-                    placeholder="Enter your phone number"
+                    placeholder="e.g. 08012345678"
                     className={errors.customerPhone ? "border-destructive" : ""}
                   />
                   {errors.customerPhone && <p className="text-sm text-destructive">{errors.customerPhone.message}</p>}
@@ -163,7 +139,7 @@ export function OrderTracking() {
                     className="border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent"
                   >
                     <a
-                      href="https://wa.me/2348144665646?text=I need help tracking my order"
+                      href={`https://wa.me/${settings?.whatsappPhone || "2347030322419"}?text=I need help tracking my order`}
                       target="_blank"
                       rel="noreferrer"
                     >
@@ -201,7 +177,7 @@ export function OrderTracking() {
                 variant="outline"
                 className="border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent"
               >
-                <a href="https://wa.me/2348144665646" target="_blank" rel="noreferrer">
+                <a href={`https://wa.me/${settings?.whatsappPhone || "2347030322419"}`} target="_blank" rel="noreferrer">
                   <MessageCircle className="w-4 h-4 mr-2" />
                   WhatsApp Support
                 </a>
@@ -211,9 +187,9 @@ export function OrderTracking() {
                 variant="outline"
                 className="border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent"
               >
-                <a href="tel:+2348144665646">
+                <a href={`tel:+${settings?.whatsappPhone || "2347030322419"}`}>
                   <Phone className="w-4 h-4 mr-2" />
-                  Call +234 814 466 5646
+                  {`Call +${settings?.whatsappPhone || "2347030322419"}`}
                 </a>
               </Button>
             </div>

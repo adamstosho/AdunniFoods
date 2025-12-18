@@ -27,11 +27,14 @@ const checkoutSchema = z.object({
 
 type CheckoutFormData = z.infer<typeof checkoutSchema>
 
+import { useSettings } from "@/lib/hooks"
+
 export function CheckoutForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
   const { items, getTotalPrice, clearCart } = useCartStore()
   const router = useRouter()
+  const { settings } = useSettings()
 
   const {
     register,
@@ -55,7 +58,10 @@ export function CheckoutForm() {
   }, [items, router])
 
   const totalPrice = getTotalPrice()
-  const deliveryFee = totalPrice >= 50 ? 0 : 5
+  const deliveryThreshold = settings?.deliveryFeeThreshold ?? 50
+  const baseDeliveryFee = settings?.baseDeliveryFee ?? 5
+
+  const deliveryFee = totalPrice >= deliveryThreshold ? 0 : baseDeliveryFee
   const finalTotal = totalPrice + deliveryFee
 
   const onSubmit = async (data: CheckoutFormData) => {
@@ -77,34 +83,46 @@ export function CheckoutForm() {
         notes: data.notes,
       }
 
-      const orderSummary = items
-        .map((item) => `${item.qty}x ${item.name} - ₦${(item.price * item.qty).toFixed(2)}`)
-        .join("\n")
-      const whatsappMessage = encodeURIComponent(
-        `🛒 *New Order from ${data.customerName}*\n\n` +
-          `📱 Phone: ${data.customerPhone}\n` +
-          `📍 Address: ${data.address}\n\n` +
-          `*Order Details:*\n${orderSummary}\n\n` +
-          `💰 Total: ₦${finalTotal.toFixed(2)}\n` +
-          `💳 Payment: ${paymentMethods.find((p) => p.id === data.paymentMethod)?.name}\n` +
-          `${data.notes ? `📝 Notes: ${data.notes}\n` : ""}` +
-          `\nPlease confirm this order. Thank you! 🙏`,
-      )
-
       const response = await api.createOrder(orderData)
 
       if (response.success && response.data) {
+        const generatedOrderId = response.data._id || ""
+        const shortId = generatedOrderId.slice(-8).toUpperCase()
+
+        const orderSummary = items
+          .map((item) => `• ${item.qty}x ${item.name} - ₦${(item.price * item.qty).toFixed(2)}`)
+          .join("\n")
+
+        const whatsappMessage = encodeURIComponent(
+          `*📦 NEW ORDER - ${settings?.storeName || "ADUNNI FOODS"}*\n` +
+          `--------------------------\n` +
+          `🆔 *Order ID:* #${shortId}\n` +
+          `👤 *Customer:* ${data.customerName}\n` +
+          `📱 *Phone:* ${data.customerPhone}\n` +
+          `📍 *Address:* ${data.address}\n` +
+          `--------------------------\n` +
+          `*🛒 ITEMS:*\n${orderSummary}\n` +
+          `--------------------------\n` +
+          `📝 *Notes:* ${data.notes || "None"}\n` +
+          `💳 *Payment:* ${paymentMethods.find((p) => p.id === data.paymentMethod)?.name}\n` +
+          `💰 *TOTAL AMOUNT: ₦${finalTotal.toFixed(2)}*\n` +
+          `--------------------------\n` +
+          `*Please confirm my order and let me know when it will be delivered. Thank you!*`,
+        )
+
+        const whatsappUrl = `https://wa.me/${settings?.whatsappPhone || "2347030322419"}?text=${whatsappMessage}`
+
         clearCart()
-        // Store order details for success page
-        sessionStorage.setItem("lastOrderId", response.data._id || "")
-        sessionStorage.setItem("whatsappMessage", whatsappMessage)
+        // Store details for success page
+        sessionStorage.setItem("lastOrderId", generatedOrderId)
+        sessionStorage.setItem("whatsappUrl", whatsappUrl)
+
+        toast.success("Order placed successfully! Redirecting to WhatsApp...")
 
         setTimeout(() => {
-          window.open(`https://wa.me/2348144665646?text=${whatsappMessage}`, "_blank")
-        }, 2000)
-
-        router.push("/checkout/success")
-        toast.success("Order placed successfully! Redirecting to WhatsApp...")
+          window.open(whatsappUrl, "_blank")
+          router.push("/checkout/success")
+        }, 1500)
       } else {
         throw new Error(response.message || "Failed to create order")
       }
@@ -251,13 +269,13 @@ export function CheckoutForm() {
                         <h4 className="font-medium mb-2">Bank Transfer Details</h4>
                         <div className="text-sm space-y-1">
                           <p>
-                            <strong>Bank:</strong> First Bank of Nigeria
+                            <strong>Bank:</strong> {settings?.bankName || "First Bank of Nigeria"}
                           </p>
                           <p>
-                            <strong>Account Name:</strong> Adunni Foods Ltd
+                            <strong>Account Name:</strong> {settings?.accountName || "Adunni Foods Ltd"}
                           </p>
                           <p>
-                            <strong>Account Number:</strong> 1234567890
+                            <strong>Account Number:</strong> {settings?.accountNumber || "1234567890"}
                           </p>
                           <p className="text-muted-foreground mt-2">
                             Please send payment confirmation via WhatsApp after transfer.
@@ -276,10 +294,10 @@ export function CheckoutForm() {
                             <strong>Provider:</strong> MTN Mobile Money
                           </p>
                           <p>
-                            <strong>Number:</strong> 08144665646
+                            <strong>Number:</strong> {settings?.whatsappPhone || "2347030322419"}
                           </p>
                           <p>
-                            <strong>Name:</strong> Adunni Foods
+                            <strong>Name:</strong> {settings?.storeName || "Adunni Foods"}
                           </p>
                           <p className="text-muted-foreground mt-2">
                             Please send payment confirmation via WhatsApp after transfer.
@@ -350,7 +368,7 @@ export function CheckoutForm() {
                   <span>Delivery Fee</span>
                   <span>{deliveryFee === 0 ? "Free" : `₦${deliveryFee.toFixed(2)}`}</span>
                 </div>
-                {totalPrice >= 50 && <div className="text-xs text-green-600">Free delivery on orders over ₦50!</div>}
+                {totalPrice >= (settings?.deliveryFeeThreshold ?? 50) && <div className="text-xs text-green-600">Free delivery on orders over ₦{settings?.deliveryFeeThreshold ?? 50}!</div>}
                 <Separator />
                 <div className="flex justify-between font-semibold text-lg">
                   <span>Total</span>
@@ -373,7 +391,7 @@ export function CheckoutForm() {
                     className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent"
                   >
                     <a
-                      href="https://wa.me/2348144665646?text=I need help with my order"
+                      href={`https://wa.me/${settings?.whatsappPhone || "2347030322419"}?text=I need help with my order`}
                       target="_blank"
                       rel="noreferrer"
                     >

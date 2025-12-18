@@ -19,6 +19,10 @@ export async function updateOrderStatus(id: string, status: OrderDocument['statu
   return Order.findByIdAndUpdate(id, { status }, { new: true });
 }
 
+export async function trackOrder(id: string, phone: string) {
+  return Order.findOne({ _id: id, customerPhone: phone });
+}
+
 export function exportOrdersCsv(orders: OrderDocument[]) {
   const fields = ['_id', 'customerName', 'customerPhone', 'address', 'totalAmount', 'paymentMethod', 'status', 'createdAt'];
   const parser = new Parser({ fields });

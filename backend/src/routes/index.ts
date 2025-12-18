@@ -5,6 +5,7 @@ import orderRoutes from './orders.routes';
 import uploadRoutes from './upload.routes';
 import notificationRoutes from './notifications.routes';
 import settingsRoutes from './settings.routes';
+import reviewRoutes from './reviews.routes';
 
 const router = Router();
 
@@ -18,6 +19,7 @@ router.use('/orders', orderRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/settings', settingsRoutes);
+router.use('/reviews', reviewRoutes);
 
 export default router;
 

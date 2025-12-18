@@ -7,10 +7,13 @@ import { Badge } from "@/components/ui/badge"
 import { CheckCircle, MessageCircle, Home, Package, Copy, Check } from "lucide-react"
 import Link from "next/link"
 
+import { useSettings } from "@/lib/hooks"
+
 export function OrderSuccess() {
   const [orderId, setOrderId] = useState<string>("")
   const [whatsappUrl, setWhatsappUrl] = useState<string>("")
   const [copied, setCopied] = useState(false)
+  const { settings } = useSettings()
 
   useEffect(() => {
     const storedOrderId = sessionStorage.getItem("lastOrderId")
@@ -35,6 +38,8 @@ export function OrderSuccess() {
       setTimeout(() => setCopied(false), 2000)
     }
   }
+
+  const phone = settings?.whatsappPhone || "2347030322419"
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -177,7 +182,7 @@ export function OrderSuccess() {
                 size="sm"
                 className="border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent"
               >
-                <a href="https://wa.me/2348144665646" target="_blank" rel="noreferrer">
+                <a href={`https://wa.me/${phone}`} target="_blank" rel="noreferrer">
                   <MessageCircle className="w-4 h-4 mr-2" />
                   WhatsApp Support
                 </a>
@@ -188,7 +193,7 @@ export function OrderSuccess() {
                 size="sm"
                 className="border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent"
               >
-                <a href="tel:+2348144665646">Call +234 814 466 5646</a>
+                <a href={`tel:+${phone}`}>{`Call +${phone}`}</a>
               </Button>
             </div>
           </CardContent>

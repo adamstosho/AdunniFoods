@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Star, Plus, Minus, Heart, Share2, ArrowLeft, Truck, Shield, RotateCcw } from "lucide-react"
 import { useCartStore } from "@/lib/store"
 import { api, type Product } from "@/lib/api"
+import { ProductReviews } from "@/components/product-reviews"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
@@ -141,9 +142,8 @@ export function ProductDetail({ slug }: ProductDetailProps) {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`aspect-square rounded-md overflow-hidden border-2 transition-colors ${
-                    selectedImage === index ? "border-primary" : "border-transparent"
-                  }`}
+                  className={`aspect-square rounded-md overflow-hidden border-2 transition-colors ${selectedImage === index ? "border-primary" : "border-transparent"
+                    }`}
                 >
                   <img
                     src={image || "/placeholder.svg"}
@@ -307,42 +307,7 @@ export function ProductDetail({ slug }: ProductDetailProps) {
           <TabsContent value="reviews" className="mt-6">
             <Card>
               <CardContent className="p-6">
-                <h3 className="font-heading font-semibold text-xl mb-4">Customer Reviews</h3>
-                <div className="space-y-6">
-                  {[
-                    {
-                      name: "Adunni O.",
-                      rating: 5,
-                      comment: "Absolutely delicious! Tastes just like the ones my grandmother used to make.",
-                      date: "2 days ago",
-                    },
-                    {
-                      name: "Kemi A.",
-                      rating: 5,
-                      comment: "Perfect crunch and flavor. Will definitely order again!",
-                      date: "1 week ago",
-                    },
-                    {
-                      name: "Tunde M.",
-                      rating: 4,
-                      comment: "Great quality plantain chips. Fast delivery too.",
-                      date: "2 weeks ago",
-                    },
-                  ].map((review, index) => (
-                    <div key={index} className="border-b border-border pb-4 last:border-b-0">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="flex items-center gap-1">
-                          {[...Array(review.rating)].map((_, i) => (
-                            <Star key={i} className="w-4 h-4 fill-primary text-primary" />
-                          ))}
-                        </div>
-                        <span className="font-medium">{review.name}</span>
-                        <span className="text-sm text-muted-foreground">• {review.date}</span>
-                      </div>
-                      <p className="text-muted-foreground">{review.comment}</p>
-                    </div>
-                  ))}
-                </div>
+                <ProductReviews productId={product._id} />
               </CardContent>
             </Card>
           </TabsContent>

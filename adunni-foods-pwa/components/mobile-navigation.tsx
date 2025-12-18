@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Home, Package, User, ShoppingCart, Search } from "lucide-react"
+import { Home, Package, User, ShoppingCart, Search, MessageSquare } from "lucide-react"
 import { useCartStore } from "@/lib/store"
 import { cn } from "@/lib/utils"
 import { usePathname } from "next/navigation"
@@ -14,13 +14,14 @@ export function MobileNavigation() {
   const navItems = [
     { href: "/", icon: Home, label: "Home" },
     { href: "/products", icon: Package, label: "Products" },
-    { href: "/track", icon: Search, label: "Track" }, // Added track order to mobile nav
+    { href: "/reviews", icon: MessageSquare, label: "Reviews" },
+    { href: "/track", icon: Search, label: "Track" },
     { href: "/about", icon: User, label: "About" },
   ]
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border lg:hidden">
-      <div className="grid grid-cols-5 h-16">
+      <div className="grid grid-cols-6 h-16">
         {navItems.map((item) => (
           <Link
             key={item.href}

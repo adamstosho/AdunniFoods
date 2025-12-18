@@ -1,11 +1,19 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
 
+export type ProductCategory = 'ripe_plantain_chips' | 'unripe_plantain_chips' | 'fruit_juice' | 'loaded_plantain'
+export type ProductUnit = 'kg' | 'piece' | 'bottle'
+export type PackagingType = 'bucket' | 'refill' | 'none'
+
 export interface Product {
   _id: string
   name: string
   slug: string
   description?: string
+  category: ProductCategory
   price: number
+  unit: ProductUnit
+  weight?: number
+  packagingType: PackagingType
   stock: number
   images: string[]
   createdAt: string
@@ -26,6 +34,7 @@ export interface Order {
   items: OrderItem[]
   totalAmount: number
   paymentMethod: "bank_transfer" | "mobile_money" | "cash_on_delivery"
+  notes?: string
   status?: "Pending" | "Packed" | "Out for Delivery" | "Completed"
   createdAt?: string
 }
@@ -43,6 +52,134 @@ export interface Notification {
   data?: Record<string, unknown>
   read: boolean
   createdAt: string
+}
+
+// Review types
+export type ReviewType = 'store' | 'product'
+export type ReviewStatus = 'pending' | 'approved' | 'rejected'
+
+export interface StoreSettings {
+  storeName: string
+  whatsappPhone: string
+  supportEmail: string
+  bankName: string
+  accountName: string
+  accountNumber: string
+  deliveryFeeThreshold: number
+  baseDeliveryFee: number
+}
+
+export interface Review {
+  _id: string
+  type: ReviewType
+  productId?: string
+  customerName: string
+  customerEmail: string
+  customerLocation?: string
+  rating: number
+  title?: string
+  comment: string
+  images?: string[]
+  status: ReviewStatus
+  isVerifiedPurchase: boolean
+  helpfulCount: number
+  createdAt: string
+}
+
+export interface CreateReviewInput {
+  type: ReviewType
+  productId?: string
+  customerName: string
+  customerEmail: string
+  customerLocation?: string
+  rating: number
+  title?: string
+  comment: string
+  images?: string[]
+}
+
+export interface PublicReviewsResponse {
+  reviews: Review[]
+  total: number
+  page: number
+  totalPages: number
+}
+
+export interface AdminReviewsResponse extends PublicReviewsResponse { }
+
+export interface ReviewStats {
+  averageRating: number
+  totalReviews: number
+  distribution: {
+    1: number
+    2: number
+    3: number
+    4: number
+    5: number
+  }
+}
+
+export interface Review {
+  _id: string
+  type: ReviewType
+  productId?: string
+  customerName: string
+  customerEmail: string
+  customerLocation?: string
+  rating: number
+  title?: string
+  comment: string
+  images?: string[]
+  status: ReviewStatus
+  isVerifiedPurchase: boolean
+  helpfulCount: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateReviewInput {
+  type: ReviewType
+  productId?: string
+  customerName: string
+  customerEmail: string
+  customerLocation?: string
+  rating: number
+  title?: string
+  comment: string
+  images?: string[]
+}
+
+export interface ReviewStats {
+  averageRating: number
+  totalReviews: number
+  ratingDistribution: {
+    1: number
+    2: number
+    3: number
+    4: number
+    5: number
+  }
+}
+
+export interface PublicReviewsResponse {
+  reviews: Review[]
+  stats: ReviewStats
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    pages: number
+  }
+}
+
+export interface AdminReviewsResponse {
+  reviews: Review[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    pages: number
+  }
 }
 
 export interface ApiResponse<T> {
@@ -101,6 +238,10 @@ class ApiClient {
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    if (response.status === 204) {
+      return { success: true } as ApiResponse<T>
     }
 
     const raw = await response.json()
@@ -169,12 +310,16 @@ class ApiClient {
     })
   }
 
+  async trackOrder(id: string, phone: string): Promise<ApiResponse<Order>> {
+    return this.request<Order>(`/orders/track/${id}/${phone}`)
+  }
+
   async getOrder(id: string): Promise<ApiResponse<Order>> {
     return this.request<Order>(`/orders/${id}`)
   }
 
   async updateOrderStatus(id: string, status: Order["status"]): Promise<ApiResponse<Order>> {
-    return this.request<Order>(`/orders/${id}` , {
+    return this.request<Order>(`/orders/${id}`, {
       method: "PUT",
       body: JSON.stringify({ status }),
     })
@@ -252,7 +397,12 @@ class ApiClient {
       body: form,
     })
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
-    return await response.json()
+    const raw = await response.json()
+    return {
+      success: true,
+      data: raw.response,
+      message: raw.message,
+    }
   }
 
   // Settings methods
@@ -269,6 +419,83 @@ class ApiClient {
     return this.request<{ username: string }>("/settings/credentials", {
       method: "PUT",
       body: JSON.stringify(payload),
+    })
+  }
+
+  async getStoreSettings(): Promise<ApiResponse<StoreSettings>> {
+    return this.request<StoreSettings>("/settings/store")
+  }
+
+  async updateStoreSettings(settings: Partial<StoreSettings>): Promise<ApiResponse<StoreSettings>> {
+    return this.request<StoreSettings>("/settings/store", {
+      method: "PUT",
+      body: JSON.stringify(settings),
+    })
+  }
+
+  // Review methods
+  async createReview(review: CreateReviewInput): Promise<ApiResponse<Review>> {
+    return this.request<Review>("/reviews", {
+      method: "POST",
+      body: JSON.stringify(review),
+    })
+  }
+
+  async getReviews(params?: {
+    type?: ReviewType
+    productId?: string
+    status?: ReviewStatus
+    page?: number
+    limit?: number
+  }): Promise<ApiResponse<PublicReviewsResponse>> {
+    const searchParams = new URLSearchParams()
+    if (params?.type) searchParams.set("type", params.type)
+    if (params?.productId) searchParams.set("productId", params.productId)
+    if (params?.status) searchParams.set("status", params.status)
+    if (params?.page) searchParams.set("page", params.page.toString())
+    if (params?.limit) searchParams.set("limit", params.limit.toString())
+    const query = searchParams.toString()
+    return this.request<PublicReviewsResponse>(`/reviews${query ? `?${query}` : ""}`)
+  }
+
+  async getReviewStats(params?: {
+    type?: ReviewType
+    productId?: string
+  }): Promise<ApiResponse<ReviewStats>> {
+    const searchParams = new URLSearchParams()
+    if (params?.type) searchParams.set("type", params.type)
+    if (params?.productId) searchParams.set("productId", params.productId)
+    const query = searchParams.toString()
+    return this.request<ReviewStats>(`/reviews/stats${query ? `?${query}` : ""}`)
+  }
+
+  async markReviewHelpful(id: string): Promise<ApiResponse<Review>> {
+    return this.request<Review>(`/reviews/${id}/helpful`, {
+      method: "POST",
+    })
+  }
+
+  // Placeholder for backward compatibility if needed, but unified in getReviews
+  async getAdminReviews(params?: {
+    type?: ReviewType
+    productId?: string
+    status?: ReviewStatus
+    page?: number
+    limit?: number
+  }): Promise<ApiResponse<AdminReviewsResponse>> {
+    return this.getReviews(params)
+  }
+
+  async updateReviewStatus(id: string, status: ReviewStatus): Promise<ApiResponse<Review>> {
+    return this.request<Review>(`/reviews/${id}/status`, {
+      method: "PUT",
+      body: JSON.stringify({ status }),
+    })
+  }
+
+  async deleteReview(id: string): Promise<ApiResponse<null>> {
+    return this.request<null>(`/reviews/${id}`, {
+      method: "DELETE",
     })
   }
 }

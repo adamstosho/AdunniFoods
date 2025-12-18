@@ -8,11 +8,15 @@ import { OrderTimeline } from "@/components/order-timeline"
 import { MapPin, Phone, User, CreditCard, MessageCircle } from "lucide-react"
 import type { Order } from "@/lib/api"
 
+import { useSettings } from "@/lib/hooks"
+
 interface OrderDetailsProps {
   order: Order
 }
 
 export function OrderDetails({ order }: OrderDetailsProps) {
+  const { settings } = useSettings()
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Pending":
@@ -173,7 +177,7 @@ export function OrderDetails({ order }: OrderDetailsProps) {
               </p>
               <Button asChild size="sm" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                 <a
-                  href={`https://wa.me/2348144665646?text=Hi, I need help with my order ${order._id}`}
+                  href={`https://wa.me/${settings?.whatsappPhone || "2347030322419"}?text=Hi, I need help with my order ${order._id}`}
                   target="_blank"
                   rel="noreferrer"
                 >

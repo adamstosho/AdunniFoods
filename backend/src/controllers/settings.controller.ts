@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import Admin from '../models/Admin';
+import Settings from '../models/Settings';
 
 export async function getProfile(req: Request, res: Response) {
   const admin = await Admin.findOne().select('username createdAt');
@@ -35,5 +36,24 @@ export async function updateCredentials(req: Request, res: Response) {
   });
 }
 
-export default { getProfile, updateCredentials };
+export async function getStoreSettings(req: Request, res: Response) {
+  let settings = await Settings.findOne();
+  if (!settings) {
+    settings = await Settings.create({});
+  }
+  res.json({ message: 'ok', response: settings });
+}
+
+export async function updateStoreSettings(req: Request, res: Response) {
+  let settings = await Settings.findOne();
+  if (!settings) {
+    settings = await Settings.create(req.body);
+  } else {
+    Object.assign(settings, req.body);
+    await settings.save();
+  }
+  res.json({ message: 'updated', response: settings });
+}
+
+export default { getProfile, updateCredentials, getStoreSettings, updateStoreSettings };
 

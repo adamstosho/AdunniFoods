@@ -36,7 +36,7 @@ export function Navigation() {
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-           
+
             <img
               src="/adunnilogo.png"
               width={40}
@@ -62,6 +62,12 @@ export function Navigation() {
               className="text-foreground hover:text-primary transition-colors duration-200 font-medium"
             >
               Track Order
+            </Link>
+            <Link
+              href="/reviews"
+              className="text-foreground hover:text-primary transition-colors duration-200 font-medium"
+            >
+              Reviews
             </Link>
             <Link
               href="/about"
@@ -124,6 +130,13 @@ export function Navigation() {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Track Order
+              </Link>
+              <Link
+                href="/reviews"
+                className="block px-4 py-2 text-foreground hover:bg-muted rounded-md transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Reviews
               </Link>
               <Link
                 href="/about"

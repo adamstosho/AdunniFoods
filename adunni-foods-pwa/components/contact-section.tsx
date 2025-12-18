@@ -5,25 +5,32 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Phone, Mail, MapPin, MessageCircle } from "lucide-react"
 
+import { useSettings } from "@/lib/hooks"
+
 export function ContactSection() {
+  const { settings } = useSettings()
+
+  const phone = settings?.whatsappPhone || "2347030322419"
+  const email = settings?.supportEmail || "adunnifoods8@gmail.com"
+
   const contactInfo = [
     {
       icon: Phone,
       title: "Call Us",
-      details: "+234 814 466 5646",
-      action: "tel:+2348144665646",
+      details: `+${phone}`,
+      action: `tel:+${phone}`,
     },
     {
       icon: Mail,
       title: "Email Us",
-      details: "adunnifoods8@gmail.com",
-      action: "mailto:adunnifoods8@gmail.com",
+      details: email,
+      action: `mailto:${email}`,
     },
     {
       icon: MessageCircle,
       title: "WhatsApp",
       details: "Chat with us",
-      action: "https://wa.me/2348144665646",
+      action: `https://wa.me/${phone}`,
     },
     {
       icon: MapPin,
@@ -73,7 +80,7 @@ export function ContactSection() {
         <div className="text-center">
           <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground px-8">
             <a
-              href="https://wa.me/2348144665646?text=Hello! I'm interested in your plantain chips."
+              href={`https://wa.me/${phone}?text=Hello! I'm interested in your plantain chips.`}
               target="_blank"
               rel="noreferrer"
             >

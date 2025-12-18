@@ -38,28 +38,40 @@ export async function getById(req: Request, res: Response) {
   res.json({ message: 'ok', response: order });
 }
 
-export async function updateStatus(req: Request, res: Response) {
-  const order = await OrderService.updateOrderStatus(req.params.id, req.body.status);
-  if (!order) return res.status(404).json({ message: 'Not found' });
+export async function track(req: Request, res: Response) {
+  const { id, phone } = req.params;
+  const order = await OrderService.trackOrder(id, phone);
+  if (!order) return res.status(404).json({ message: 'Order not found with these details' });
+  res.json({ message: 'ok', response: order });
+}
 
-  void email.sendAdminOrderStatusEmail('admin@adunnifoods.com', {
-    orderId: (order._id as any).toString(),
-    status: order.status,
-    customerName: order.customerName,
-  });
+export async function updateStatus(req: Request, res: Response, next: any) {
+  try {
+    const id = req.params.id.trim();
+    const order = await OrderService.updateOrderStatus(id, req.body.status);
+    if (!order) return res.status(404).json({ message: 'Not found' });
 
-  void NotificationService.createNotification({
-    type: 'order_status_updated',
-    title: 'Order status updated',
-    message: `Order #${(order._id as any).toString().slice(-8).toUpperCase()} is now ${order.status}`,
-    data: {
+    void email.sendAdminOrderStatusEmail('admin@adunnifoods.com', {
       orderId: (order._id as any).toString(),
       status: order.status,
       customerName: order.customerName,
-    },
-  });
+    });
 
-  res.json({ message: 'updated', response: order });
+    void NotificationService.createNotification({
+      type: 'order_status_updated',
+      title: 'Order status updated',
+      message: `Order #${(order._id as any).toString().slice(-8).toUpperCase()} is now ${order.status}`,
+      data: {
+        orderId: (order._id as any).toString(),
+        status: order.status,
+        customerName: order.customerName,
+      },
+    });
+
+    res.json({ message: 'updated', response: order });
+  } catch (error) {
+    next(error);
+  }
 }
 
 export async function exportCsv(_req: Request, res: Response) {

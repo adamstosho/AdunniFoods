@@ -12,3 +12,15 @@ export const updateAdminCredentialsSchema = z.object({
 
 export type UpdateAdminCredentialsInput = z.infer<typeof updateAdminCredentialsSchema>;
 
+export const updateStoreSettingsSchema = z.object({
+  storeName: z.string().min(2).max(100).optional(),
+  whatsappPhone: z.string().min(10).max(20).optional(),
+  supportEmail: z.string().email().optional(),
+  bankName: z.string().min(2).max(100).optional(),
+  accountName: z.string().min(2).max(100).optional(),
+  accountNumber: z.string().min(10).max(20).optional(),
+  deliveryFeeThreshold: z.number().min(0).optional(),
+  baseDeliveryFee: z.number().min(0).optional(),
+});
+
+

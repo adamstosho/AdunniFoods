@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { LayoutDashboard, Package, ShoppingCart, BarChart3, Settings, LogOut, Menu, Bell } from "lucide-react"
+import { LayoutDashboard, Package, ShoppingCart, BarChart3, Settings, LogOut, Menu, Bell, MessageSquare } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { usePathname } from "next/navigation"
 import { api, type Notification } from "@/lib/api"
@@ -211,9 +211,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     {notifications.map((n) => (
                       <div
                         key={n._id}
-                        className={`rounded-lg px-2 py-2 ${
-                          n.read ? "bg-transparent" : "bg-primary/5"
-                        } border border-border/50`}
+                        className={`rounded-lg px-2 py-2 ${n.read ? "bg-transparent" : "bg-primary/5"
+                          } border border-border/50`}
                       >
                         <p className="text-xs text-muted-foreground">
                           {new Date(n.createdAt).toLocaleString()}

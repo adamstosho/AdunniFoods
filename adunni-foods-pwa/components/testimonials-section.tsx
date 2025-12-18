@@ -1,33 +1,61 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { Star, Quote } from "lucide-react"
+import { Star, Quote, Loader2, ArrowRight } from "lucide-react"
+import { api, Review } from "@/lib/api"
+import Link from "next/link"
 
 export function TestimonialsSection() {
-  const testimonials = [
+  const [reviews, setReviews] = useState<Review[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // Default fallback reviews if none are approved in the DB yet
+  const fallbacks = [
     {
-      name: "Kemi Adebayo",
-      location: "Lagos",
+      customerName: "Kemi Adebayo",
+      customerLocation: "Lagos",
       rating: 5,
-      text: "The best plantain chips I've ever tasted! Reminds me of my grandmother's cooking. The delivery was super fast too.",
-      avatar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-XtmcsusgA7KJHACxzTZSMRWTdFhXjp.png",
+      comment: "The best plantain chips I've ever tasted! Reminds me of my grandmother's cooking. The delivery was super fast too.",
     },
     {
-      name: "Tunde Okafor",
-      location: "Abuja",
+      customerName: "Tunde Okafor",
+      customerLocation: "Abuja",
       rating: 5,
-      text: "Amazing quality and taste. I order these for my family every week. The spicy variety is my favorite!",
-      avatar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-XtmcsusgA7KJHACxzTZSMRWTdFhXjp.png",
+      comment: "Amazing quality and taste. I order these for my family every week. The spicy variety is my favorite!",
     },
     {
-      name: "Funmi Balogun",
-      location: "Ibadan",
+      customerName: "Funmi Balogun",
+      customerLocation: "Ibadan",
       rating: 5,
-      text: "Perfect snack for movie nights. Crispy, flavorful, and made with love. Highly recommend Adunni Foods!",
-      avatar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-XtmcsusgA7KJHACxzTZSMRWTdFhXjp.png",
+      comment: "Perfect snack for movie nights. Crispy, flavorful, and made with love. Highly recommend Adunni Foods!",
     },
   ]
+
+  useEffect(() => {
+    async function fetchTopReviews() {
+      try {
+        setLoading(true)
+        const response = await api.getPublicReviews({
+          type: "store",
+          limit: 3,
+        })
+        if (response.success && response.data && response.data.reviews.length > 0) {
+          setReviews(response.data.reviews)
+        } else {
+          // If no reviews in DB, don't set anything, the component will use fallbacks
+        }
+      } catch (error) {
+        console.error("Failed to fetch testimonials:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchTopReviews()
+  }, [])
+
+  const displayReviews = reviews.length > 0 ? reviews : fallbacks
 
   return (
     <section className="py-16 lg:py-24 bg-muted/30">
@@ -42,35 +70,57 @@ export function TestimonialsSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {testimonials.map((testimonial, index) => (
-            <Card key={index} className="bg-card hover:shadow-lg transition-shadow duration-300">
-              <CardContent className="p-6">
-                <Quote className="w-8 h-8 text-primary mb-4" />
+        {loading && reviews.length === 0 ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayReviews.map((testimonial: any, index) => (
+                <Card key={index} className="bg-card hover:shadow-lg transition-shadow duration-300 border-border/50">
+                  <CardContent className="p-6">
+                    <Quote className="w-8 h-8 text-primary/30 mb-4" />
 
-                <div className="flex items-center gap-1 mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-primary text-primary" />
-                  ))}
-                </div>
+                    <div className="flex items-center gap-1 mb-4">
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <Star key={i} className="w-4 h-4 fill-primary text-primary" />
+                      ))}
+                    </div>
 
-                <p className="text-muted-foreground mb-6 leading-relaxed">"{testimonial.text}"</p>
+                    <p className="text-muted-foreground mb-6 leading-relaxed italic">
+                      "{testimonial.comment || testimonial.text}"
+                    </p>
 
-                <div className="flex items-center gap-3">
-                  <img
-                    src={testimonial.avatar || "/placeholder.svg"}
-                    alt={testimonial.name}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  <div>
-                    <div className="font-semibold text-foreground">{testimonial.name}</div>
-                    <div className="text-sm text-muted-foreground">{testimonial.location}</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                        {testimonial.customerName?.charAt(0) || testimonial.name?.charAt(0)}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-foreground">
+                          {testimonial.customerName || testimonial.name}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {testimonial.customerLocation || testimonial.location}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <div className="text-center mt-12">
+              <Link
+                href="/reviews"
+                className="inline-flex items-center gap-2 text-primary font-semibold hover:underline group"
+              >
+                View all reviews
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </>
+        )}
       </div>
     </section>
   )

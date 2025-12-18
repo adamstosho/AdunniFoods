@@ -6,8 +6,9 @@ import requireAuth from '../middleware/auth';
 
 const router = Router();
 
-// Public create
+// Public create and track
 router.post('/', validate(createOrderSchema), OrdersController.create);
+router.get('/track/:id/:phone', OrdersController.track);
 
 // Admin endpoints (place static route before dynamic :id)
 router.get('/export/csv', requireAuth, OrdersController.exportCsv);

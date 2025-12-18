@@ -116,13 +116,7 @@ export function AdminLogin() {
             </Button>
           </form>
 
-          <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-            <h4 className="font-medium text-sm mb-2">Demo Credentials</h4>
-            <div className="text-xs text-muted-foreground space-y-1">
-              <p>Username: admin</p>
-              <p>Password: admin1234</p>
-            </div>
-          </div>
+
         </CardContent>
       </Card>
     </div>

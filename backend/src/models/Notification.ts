@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model, Types } from 'mongoose';
 
-export type NotificationType = 'order_created' | 'order_status_updated' | 'low_stock' | 'product_created' | 'product_deleted';
+export type NotificationType = 'order_created' | 'order_status_updated' | 'low_stock' | 'product_created' | 'product_deleted' | 'review_submitted';
 
 export interface NotificationDocument extends Document {
   _id: Types.ObjectId;
