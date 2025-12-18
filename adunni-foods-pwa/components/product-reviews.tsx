@@ -16,14 +16,24 @@ export function ProductReviews({ productId }: { productId: string }) {
         async function fetchProductReviews() {
             try {
                 setLoading(true)
-                const response = await api.getPublicReviews({
-                    type: "product",
-                    productId,
-                    limit: 10
-                })
-                if (response.success && response.data) {
-                    setReviews(response.data.reviews)
-                    setStats(response.data.stats)
+                const [reviewsRes, statsRes] = await Promise.all([
+                    api.getReviews({
+                        type: "product",
+                        productId,
+                        status: "approved",
+                        limit: 10
+                    }),
+                    api.getReviewStats({
+                        type: "product",
+                        productId
+                    })
+                ])
+
+                if (reviewsRes.success && reviewsRes.data) {
+                    setReviews(reviewsRes.data.reviews)
+                }
+                if (statsRes.success && statsRes.data) {
+                    setStats(statsRes.data)
                 }
             } catch (error) {
                 console.error("Failed to fetch product reviews:", error)
