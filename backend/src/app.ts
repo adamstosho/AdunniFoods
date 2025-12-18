@@ -25,10 +25,11 @@ const corsOptions = {
       'http://localhost:3001',
       'http://127.0.0.1:3000',
       'http://127.0.0.1:3001',
+      'https://adunnifoods.vercel.app',
       config.clientOrigin
     ].filter(Boolean);
 
-    if (allowedOrigins.includes(origin) || config.clientOrigin === '*') {
+    if (allowedOrigins.includes(origin) || allowedOrigins.includes(origin + '/') || config.clientOrigin === '*') {
       callback(null, true);
     } else {
       console.log('CORS blocked origin:', origin);
