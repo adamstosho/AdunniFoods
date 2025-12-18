@@ -19,15 +19,15 @@ const corsOptions = {
   origin: function (origin: string | undefined, callback: Function) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
+
     const allowedOrigins = [
       'http://localhost:3000',
-      'http://localhost:3001', 
+      'http://localhost:3001',
       'http://127.0.0.1:3000',
       'http://127.0.0.1:3001',
       config.clientOrigin
     ].filter(Boolean);
-    
+
     if (allowedOrigins.includes(origin) || config.clientOrigin === '*') {
       callback(null, true);
     } else {
@@ -53,8 +53,17 @@ app.use(morgan('dev'));
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 500 });
 app.use(limiter);
 
+app.get('/', (_req, res) => {
+  res.json({
+    message: 'Welcome to Adunni Foods API',
+    status: 'running',
+    docs: '/api-docs',
+    health: '/health'
+  });
+});
+
 app.get('/health', (_req, res) => {
-  res.json({ status: 'ok' });
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // Swagger UI Setup
@@ -74,7 +83,7 @@ try {
     }
   }));
   console.log('✅ Swagger UI available at /api-docs');
-  
+
   // Serve OpenAPI spec directly
   app.get('/openapi.yaml', (_req, res) => {
     res.setHeader('Content-Type', 'text/yaml');

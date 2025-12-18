@@ -100,6 +100,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       icon: BarChart3,
     },
     {
+      name: "Reviews",
+      href: "/admin/reviews",
+      icon: MessageSquare,
+    },
+    {
       name: "Settings",
       href: "/admin/settings",
       icon: Settings,
