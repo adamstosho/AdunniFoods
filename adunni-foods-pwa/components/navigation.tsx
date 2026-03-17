@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ShoppingCart, Menu, X } from "lucide-react"
 import { useCartStore } from "@/lib/store"
@@ -37,49 +38,50 @@ export function Navigation() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
 
-            <img
+            <Image
               src="/adunnilogo.png"
-              width={40}
-              height={40}
+              width={48}
+              height={48}
+              priority
               alt="Adunni Foods logo"
-              className="w-10 h-10 lg:w-12 lg:h-12 object-contain rounded-full border shadow-md border-border p-1 hover:scale-105 transition-all duration-300 hover:shadow-primary/25 "
+              className="w-10 h-10 lg:w-12 lg:h-12 object-contain rounded-full border shadow-md border-border p-1 hover:scale-105 transition-all duration-300 hover:shadow-primary/25"
             />
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-8">
             <Link href="/" className="text-foreground hover:text-primary transition-colors duration-200 font-medium">
-              Home
+              <span className="nav-underline-track nav-underline-active">Home</span>
             </Link>
             <Link
               href="/products"
               className="text-foreground hover:text-primary transition-colors duration-200 font-medium"
             >
-              Products
+              <span className="nav-underline-track">Products</span>
             </Link>
             <Link
               href="/track"
               className="text-foreground hover:text-primary transition-colors duration-200 font-medium"
             >
-              Track Order
+              <span className="nav-underline-track">Track Order</span>
             </Link>
             <Link
               href="/reviews"
               className="text-foreground hover:text-primary transition-colors duration-200 font-medium"
             >
-              Reviews
+              <span className="nav-underline-track">Reviews</span>
             </Link>
             <Link
               href="/about"
               className="text-foreground hover:text-primary transition-colors duration-200 font-medium"
             >
-              About
+              <span className="nav-underline-track">About</span>
             </Link>
             <Link
               href="/contact"
               className="text-foreground hover:text-primary transition-colors duration-200 font-medium"
             >
-              Contact
+              <span className="nav-underline-track">Contact</span>
             </Link>
           </div>
 

@@ -11,6 +11,7 @@ import { Search, Filter, Star, Plus, Grid, List } from "lucide-react"
 import { useCartStore } from "@/lib/store"
 import { api, type Product } from "@/lib/api"
 import Link from "next/link"
+import { motion } from "framer-motion"
 
 export function ProductCatalog() {
   const [products, setProducts] = useState<Product[]>([])
@@ -232,20 +233,38 @@ export function ProductCatalog() {
           </Button>
         </div>
       ) : (
-        <div
+        <motion.div
           className={
             viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "space-y-4"
           }
+          initial="hidden"
+          animate="show"
+          variants={{
+            hidden: { opacity: 0 },
+            show: {
+              opacity: 1,
+              transition: { staggerChildren: 0.1 }
+            }
+          }}
         >
           {filteredAndSortedProducts.map((product) => (
-            <ProductCard
+            <motion.div 
               key={product._id}
-              product={product}
-              viewMode={viewMode}
-              onAddToCart={() => handleAddToCart(product)}
-            />
+              className="h-full"
+              layout
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
+              }}
+            >
+              <ProductCard
+                product={product}
+                viewMode={viewMode}
+                onAddToCart={() => handleAddToCart(product)}
+              />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
     </div>
   )
@@ -312,52 +331,54 @@ function ProductCard({ product, viewMode, onAddToCart }: ProductCardProps) {
   }
 
   return (
-    <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-      <div className="relative aspect-square overflow-hidden">
+    <Card className="group flex flex-col overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 bg-card border-border/50">
+      <div className="relative aspect-square overflow-hidden bg-muted/10">
         <img
           src={
             product.images[0] ||
             `/placeholder.svg?height=400&width=400&query=delicious ${product.name || "/placeholder.svg"} plantain chips golden crispy`
           }
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          loading="lazy"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
         />
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
-        <Button
-          size="sm"
-          className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-primary hover:bg-primary/90 rounded-full p-2"
-          onClick={onAddToCart}
-        >
-          <Plus className="w-4 h-4" />
-        </Button>
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
         {product.stock < 10 && product.stock > 0 && (
-          <Badge className="absolute top-4 left-4 bg-destructive">Only {product.stock} left</Badge>
+          <Badge className="absolute top-4 left-4 bg-destructive shadow-md">Only {product.stock} left</Badge>
+        )}
+        {product.stock === 0 && (
+          <Badge variant="secondary" className="absolute top-4 left-4 shadow-md bg-white/90 text-black">Sold Out</Badge>
         )}
       </div>
 
-      <CardContent className="p-6">
-        <div className="flex items-center gap-1 mb-2">
+      <CardContent className="flex flex-col flex-1 p-5 lg:p-6">
+        <div className="flex items-center gap-1 mb-3">
           {[...Array(5)].map((_, i) => (
-            <Star key={i} className="w-4 h-4 fill-primary text-primary" />
+            <Star key={i} className="w-3.5 h-3.5 fill-primary text-primary" />
           ))}
-          <span className="text-sm text-muted-foreground ml-2">(4.9)</span>
+          <span className="text-xs text-muted-foreground font-medium ml-1.5">(4.9)</span>
         </div>
 
-        <Link href={`/products/${product.slug}`}>
-          <h3 className="font-heading font-semibold text-lg text-foreground mb-2 hover:text-primary transition-colors">
+        <Link href={`/products/${product.slug}`} className="mb-2">
+          <h3 className="font-heading font-semibold text-lg leading-tight text-foreground group-hover:text-primary transition-colors line-clamp-2">
             {product.name}
           </h3>
         </Link>
 
         {product.description && (
-          <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{product.description}</p>
+          <p className="text-muted-foreground text-sm mb-4 line-clamp-2 flex-1">{product.description}</p>
         )}
 
-        <div className="flex items-center justify-between">
-          <div className="text-2xl font-bold text-primary">₦{product.price.toFixed(2)}</div>
+        {!product.description && <div className="flex-1" />}
+
+        <div className="mt-auto pt-4 border-t border-border/40">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-sm font-medium text-muted-foreground">Price</span>
+            <span className="text-xl font-bold text-primary">₦{product.price.toLocaleString()}</span>
+          </div>
           <Button
             onClick={onAddToCart}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-md transition-all hover:shadow-lg active:scale-[0.98]"
             disabled={product.stock === 0}
           >
             {product.stock === 0 ? "Out of Stock" : "Add to Cart"}

@@ -177,7 +177,7 @@ export function OrderDetails({ order }: OrderDetailsProps) {
               </p>
               <Button asChild size="sm" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                 <a
-                  href={`https://wa.me/${settings?.whatsappPhone || "2347030322419"}?text=Hi, I need help with my order ${order._id}`}
+                  href={`https://wa.me/${settings?.whatsappPhone || "2347030322419"}?text=Hi, I need help with my order #${order._id?.slice(-8).toUpperCase()}`}
                   target="_blank"
                   rel="noreferrer"
                 >

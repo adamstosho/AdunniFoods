@@ -16,10 +16,23 @@ export async function getOrderById(id: string) {
 }
 
 export async function updateOrderStatus(id: string, status: OrderDocument['status']) {
-  return Order.findByIdAndUpdate(id, { status }, { new: true });
+  return Order.findByIdAndUpdate(id, { status }, { new: true, runValidators: true });
 }
 
 export async function trackOrder(id: string, phone: string) {
+  if (id.length === 8) {
+    // Search by last 8 characters of ObjectId using aggregation-style expression
+    const escapedId = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return Order.findOne({
+      $expr: {
+        $regexMatch: {
+          input: { $toString: '$_id' },
+          regex: new RegExp(`${escapedId}$`, 'i')
+        }
+      },
+      customerPhone: phone
+    });
+  }
   return Order.findOne({ _id: id, customerPhone: phone });
 }
 

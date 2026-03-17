@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Space_Grotesk, DM_Sans } from "next/font/google"
 import "./globals.css"
+import { ServiceWorkerRegistrar } from "@/components/service-worker-registrar"
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -16,11 +17,22 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  title: "Adunni Foods - Premium Plantain Chips",
+  metadataBase: new URL("https://adunnifoods.com"),
+  title: {
+    default: "Adunni Foods - Premium Plantain Chips",
+    template: "%s | Adunni Foods",
+  },
   description:
-    "Delicious, premium plantain chips made with love. Order fresh, crispy plantain chips delivered to your door.",
+    "Delicious, premium Nigerian plantain chips made with love. Order fresh, crispy plantain chips delivered to your door.",
   generator: "v0.app",
-  keywords: ["plantain chips", "Nigerian snacks", "healthy snacks", "food delivery"],
+  keywords: [
+    "plantain chips",
+    "Nigerian snacks",
+    "healthy snacks",
+    "food delivery",
+    "Adunni Foods",
+    "Lagos snacks",
+  ],
   authors: [{ name: "Adunni Foods" }],
   creator: "Adunni Foods",
   publisher: "Adunni Foods",
@@ -30,6 +42,30 @@ export const metadata: Metadata = {
     telephone: false,
   },
   manifest: "/manifest.json",
+  openGraph: {
+    title: "Adunni Foods - Premium Nigerian Plantain Chips",
+    description:
+      "Crispy, golden plantain chips made with authentic Nigerian recipes. Order online and enjoy fast delivery.",
+    url: "/",
+    siteName: "Adunni Foods",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Adunni Foods premium plantain chips",
+      },
+    ],
+    locale: "en_NG",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Adunni Foods - Premium Nigerian Plantain Chips",
+    description:
+      "Delicious, premium plantain chips made with love. Order fresh, crispy plantain chips delivered to your door.",
+    images: ["/og-image.png"],
+  },
 }
 
 export const viewport: Viewport = {
@@ -54,25 +90,11 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Adunni Foods" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js')
-                    .then(function(registration) {
-                      console.log('SW registered: ', registration);
-                    })
-                    .catch(function(registrationError) {
-                      console.log('SW registration failed: ', registrationError);
-                    });
-                });
-              }
-            `,
-          }}
-        />
       </head>
-      <body className="font-body antialiased">{children}</body>
+      <body className="font-body antialiased">
+        <ServiceWorkerRegistrar />
+        {children}
+      </body>
     </html>
   )
 }

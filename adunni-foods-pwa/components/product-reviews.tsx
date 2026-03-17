@@ -96,7 +96,7 @@ export function ProductReviews({ productId }: { productId: string }) {
 
                     <div className="flex-1 max-w-xs space-y-1">
                         {[5, 4, 3, 2, 1].map(r => {
-                            const count = stats.ratingDistribution[r as 1 | 2 | 3 | 4 | 5] || 0;
+                            const count = stats.distribution[r as 1 | 2 | 3 | 4 | 5] || 0;
                             const pct = stats.totalReviews > 0 ? (count / stats.totalReviews) * 100 : 0;
                             return (
                                 <div key={r} className="flex items-center gap-2 text-xs">

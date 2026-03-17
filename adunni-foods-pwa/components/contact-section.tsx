@@ -11,7 +11,7 @@ export function ContactSection() {
   const { settings } = useSettings()
 
   const phone = settings?.whatsappPhone || "2347030322419"
-  const email = settings?.supportEmail || "adunnifoods8@gmail.com"
+  const email = settings?.supportEmail || "adunnifoods.ltd@gmail.com"
 
   const contactInfo = [
     {
@@ -80,7 +80,9 @@ export function ContactSection() {
         <div className="text-center">
           <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground px-8">
             <a
-              href={`https://wa.me/${phone}?text=Hello! I'm interested in your plantain chips.`}
+              href={`https://wa.me/${phone}?text=${encodeURIComponent(
+                `Hello Adunni Foods!\n\nMy name is "...".\nI am interested in your plantain chips.\n\nIs it available?`,
+              )}`}
               target="_blank"
               rel="noreferrer"
             >

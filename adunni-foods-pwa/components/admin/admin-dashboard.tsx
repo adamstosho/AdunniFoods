@@ -6,8 +6,10 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Package, ShoppingCart, Users, TrendingUp, DollarSign, Clock, AlertCircle } from "lucide-react"
 import { api, type Order } from "@/lib/api"
+import { useRouter } from "next/navigation"
 
 export function AdminDashboard() {
+  const router = useRouter()
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalOrders: 0,
@@ -148,9 +150,9 @@ export function AdminDashboard() {
           >
             <CardContent className="p-6">
               <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                  <p className="text-2xl font-bold">{stat.value}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-muted-foreground truncate">{stat.title}</p>
+                  <p className="text-xl sm:text-2xl font-bold truncate">{stat.value}</p>
                 </div>
                 <div className={`rounded-full p-3 ${stat.bgColor}`}>
                   <stat.icon className={`w-6 h-6 ${stat.color}`} />
@@ -173,7 +175,12 @@ export function AdminDashboard() {
                   {stats.lowStockProducts} product{stats.lowStockProducts > 1 ? "s" : ""} running low on stock
                 </p>
               </div>
-              <Button variant="outline" size="sm" className="ml-auto bg-transparent">
+              <Button
+                variant="outline"
+                size="sm"
+                className="ml-auto bg-transparent"
+                onClick={() => router.push("/admin/products")}
+              >
                 View Products
               </Button>
             </div>
@@ -197,10 +204,10 @@ export function AdminDashboard() {
                     key={order._id}
                     className="flex items-center justify-between p-3 border border-border rounded-lg"
                   >
-                    <div>
-                      <p className="font-medium">#{order._id?.slice(-8).toUpperCase()}</p>
-                      <p className="text-sm text-muted-foreground">{order.customerName}</p>
-                      <p className="text-sm text-muted-foreground">
+                    <div className="min-w-0 flex-1 pr-2">
+                      <p className="font-medium truncate">#{order._id?.slice(-8).toUpperCase()}</p>
+                      <p className="text-sm text-muted-foreground truncate">{order.customerName}</p>
+                      <p className="text-sm text-muted-foreground truncate">
                         {new Date(order.createdAt || "").toLocaleDateString()}
                       </p>
                     </div>
@@ -222,19 +229,35 @@ export function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <Button className="w-full justify-start bg-transparent" variant="outline">
+              <Button
+                className="w-full justify-start bg-transparent"
+                variant="outline"
+                onClick={() => router.push("/admin/products")}
+              >
                 <Package className="w-4 h-4 mr-2" />
                 Add New Product
               </Button>
-              <Button className="w-full justify-start bg-transparent" variant="outline">
+              <Button
+                className="w-full justify-start bg-transparent"
+                variant="outline"
+                onClick={() => router.push("/admin/orders")}
+              >
                 <ShoppingCart className="w-4 h-4 mr-2" />
                 View All Orders
               </Button>
-              <Button className="w-full justify-start bg-transparent" variant="outline">
+              <Button
+                className="w-full justify-start bg-transparent"
+                variant="outline"
+                onClick={() => router.push("/admin/analytics")}
+              >
                 <TrendingUp className="w-4 h-4 mr-2" />
                 Export Sales Report
               </Button>
-              <Button className="w-full justify-start bg-transparent" variant="outline">
+              <Button
+                className="w-full justify-start bg-transparent"
+                variant="outline"
+                onClick={() => router.push("/admin/analytics")}
+              >
                 <Users className="w-4 h-4 mr-2" />
                 Customer Analytics
               </Button>

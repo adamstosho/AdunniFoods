@@ -1,4 +1,8 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
+import { useAppStore } from "./store"
+
+// Prefer same-origin proxy (`/api`) to avoid CORS + dev port coupling.
+// You can override this (e.g. in production) with NEXT_PUBLIC_API_URL.
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api"
 
 export type ProductCategory = 'ripe_plantain_chips' | 'unripe_plantain_chips' | 'fruit_juice' | 'loaded_plantain'
 export type ProductUnit = 'kg' | 'piece' | 'bottle'
@@ -58,67 +62,6 @@ export interface Notification {
 export type ReviewType = 'store' | 'product'
 export type ReviewStatus = 'pending' | 'approved' | 'rejected'
 
-export interface StoreSettings {
-  storeName: string
-  whatsappPhone: string
-  supportEmail: string
-  bankName: string
-  accountName: string
-  accountNumber: string
-  deliveryFeeThreshold: number
-  baseDeliveryFee: number
-}
-
-export interface Review {
-  _id: string
-  type: ReviewType
-  productId?: string
-  customerName: string
-  customerEmail: string
-  customerLocation?: string
-  rating: number
-  title?: string
-  comment: string
-  images?: string[]
-  status: ReviewStatus
-  isVerifiedPurchase: boolean
-  helpfulCount: number
-  createdAt: string
-}
-
-export interface CreateReviewInput {
-  type: ReviewType
-  productId?: string
-  customerName: string
-  customerEmail: string
-  customerLocation?: string
-  rating: number
-  title?: string
-  comment: string
-  images?: string[]
-}
-
-export interface PublicReviewsResponse {
-  reviews: Review[]
-  total: number
-  page: number
-  totalPages: number
-}
-
-export interface AdminReviewsResponse extends PublicReviewsResponse { }
-
-export interface ReviewStats {
-  averageRating: number
-  totalReviews: number
-  distribution: {
-    1: number
-    2: number
-    3: number
-    4: number
-    5: number
-  }
-}
-
 export interface Review {
   _id: string
   type: ReviewType
@@ -149,10 +92,20 @@ export interface CreateReviewInput {
   images?: string[]
 }
 
+export interface PublicReviewsResponse {
+  reviews: Review[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export interface AdminReviewsResponse extends PublicReviewsResponse { }
+
 export interface ReviewStats {
   averageRating: number
   totalReviews: number
-  ratingDistribution: {
+  distribution: {
     1: number
     2: number
     3: number
@@ -161,25 +114,15 @@ export interface ReviewStats {
   }
 }
 
-export interface PublicReviewsResponse {
-  reviews: Review[]
-  stats: ReviewStats
-  pagination: {
-    page: number
-    limit: number
-    total: number
-    pages: number
-  }
-}
-
-export interface AdminReviewsResponse {
-  reviews: Review[]
-  pagination: {
-    page: number
-    limit: number
-    total: number
-    pages: number
-  }
+export interface StoreSettings {
+  storeName: string
+  whatsappPhone: string
+  supportEmail: string
+  bankName: string
+  accountName: string
+  accountNumber: string
+  deliveryFeeThreshold: number
+  baseDeliveryFee: number
 }
 
 export interface ApiResponse<T> {
@@ -209,6 +152,8 @@ class ApiClient {
     this.token = token
     if (typeof window !== "undefined") {
       localStorage.setItem("admin_token", token)
+      // Sync with Zustand store
+      useAppStore.getState().setAdminToken(token)
     }
   }
 
@@ -216,6 +161,8 @@ class ApiClient {
     this.token = null
     if (typeof window !== "undefined") {
       localStorage.removeItem("admin_token")
+      // Sync with Zustand store
+      useAppStore.getState().setAdminToken(null)
     }
   }
 
@@ -230,14 +177,46 @@ class ApiClient {
       headers.Authorization = `Bearer ${this.token}`
     }
 
-    console.log("[v0] Making API request to:", url)
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    })
+    const debug = process.env.NODE_ENV !== "production"
+    if (debug) console.log("[api] request:", url)
+
+    const controller = new AbortController()
+    const timeoutMs = typeof options.signal === "undefined" ? 15_000 : 0
+    const timeoutId =
+      timeoutMs > 0
+        ? setTimeout(() => {
+            controller.abort()
+          }, timeoutMs)
+        : null
+
+    let response: Response
+    try {
+      response = await fetch(url, {
+        ...options,
+        headers,
+        signal: options.signal ?? controller.signal,
+      })
+    } catch (err: any) {
+      const message =
+        err?.name === "AbortError"
+          ? "Request timed out. Please check your connection and try again."
+          : "Network error. API is unreachable (backend down, wrong URL, or blocked request)."
+      throw new Error(message)
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId)
+    }
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+      let errorMsg = `HTTP error! status: ${response.status}`
+      try {
+        const errorData = await response.json()
+        if (errorData && errorData.message) {
+          errorMsg = errorData.message
+        }
+      } catch (e) {
+        // ignore JSON parse error
+      }
+      throw new Error(errorMsg)
     }
 
     if (response.status === 204) {
@@ -245,7 +224,7 @@ class ApiClient {
     }
 
     const raw = await response.json()
-    console.log("[v0] API request successful")
+    if (debug) console.log("[api] success:", url)
     // Normalize backend shape { message, response }
     if (raw && typeof raw === "object" && ("response" in raw || "message" in raw)) {
       const normalized: ApiResponse<T> = {
@@ -365,6 +344,9 @@ class ApiClient {
       method: "POST",
       body: JSON.stringify({ username, password }),
     })
+    if (response.success && response.data?.token) {
+      this.setToken(response.data.token)
+    }
     return response
   }
 
@@ -412,9 +394,9 @@ class ApiClient {
 
   async updateAdminCredentials(payload: {
     currentPassword: string
-    newUsername: string
-    newPassword: string
-    confirmNewPassword: string
+    newUsername?: string
+    newPassword?: string
+    confirmNewPassword?: string
   }): Promise<ApiResponse<{ username: string }>> {
     return this.request<{ username: string }>("/settings/credentials", {
       method: "PUT",
@@ -456,6 +438,15 @@ class ApiClient {
     if (params?.limit) searchParams.set("limit", params.limit.toString())
     const query = searchParams.toString()
     return this.request<PublicReviewsResponse>(`/reviews${query ? `?${query}` : ""}`)
+  }
+
+  async getPublicReviews(params?: {
+    type?: ReviewType
+    productId?: string
+    page?: number
+    limit?: number
+  }): Promise<ApiResponse<PublicReviewsResponse>> {
+    return this.getReviews({ ...params, status: 'approved' })
   }
 
   async getReviewStats(params?: {

@@ -249,10 +249,10 @@ export function Analytics() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card className="overflow-hidden rounded-xl border-border/60 shadow-sm">
           <CardContent className="p-6">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
-                <p className="text-2xl font-bold">₦{totalRevenue.toFixed(2)}</p>
+            <div className="flex items-center justify-between gap-4 min-w-0">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-muted-foreground truncate">Total Revenue</p>
+                <p className="text-xl sm:text-2xl font-bold truncate">₦{totalRevenue.toFixed(2)}</p>
               </div>
               <div className="p-3 rounded-full bg-primary/10">
                 <DollarSign className="w-6 h-6 text-primary" />
@@ -263,10 +263,10 @@ export function Analytics() {
 
         <Card className="overflow-hidden rounded-xl border-border/60 shadow-sm">
           <CardContent className="p-6">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Orders</p>
-                <p className="text-2xl font-bold">{totalOrders}</p>
+            <div className="flex items-center justify-between gap-4 min-w-0">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-muted-foreground truncate">Total Orders</p>
+                <p className="text-xl sm:text-2xl font-bold truncate">{totalOrders}</p>
               </div>
               <div className="p-3 rounded-full bg-green-100">
                 <ShoppingCart className="w-6 h-6 text-green-600" />
@@ -277,10 +277,10 @@ export function Analytics() {
 
         <Card className="overflow-hidden rounded-xl border-border/60 shadow-sm">
           <CardContent className="p-6">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Average Order Value</p>
-                <p className="text-2xl font-bold">₦{avgOrderValue.toFixed(2)}</p>
+            <div className="flex items-center justify-between gap-4 min-w-0">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-muted-foreground truncate">Average Order Value</p>
+                <p className="text-xl sm:text-2xl font-bold truncate">₦{avgOrderValue.toFixed(2)}</p>
               </div>
               <div className="p-3 rounded-full bg-blue-100">
                 <TrendingUp className="w-6 h-6 text-blue-600" />
@@ -291,10 +291,10 @@ export function Analytics() {
 
         <Card className="overflow-hidden rounded-xl border-border/60 shadow-sm">
           <CardContent className="p-6">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Pending vs Completed</p>
-                <p className="text-sm text-muted-foreground">
+            <div className="flex items-center justify-between gap-4 min-w-0">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-muted-foreground truncate">Pending vs Completed</p>
+                <p className="text-sm text-muted-foreground truncate">
                   <span className="font-semibold">{pendingCount}</span> pending ·{" "}
                   <span className="font-semibold">{completedCount}</span> completed
                 </p>
@@ -370,13 +370,13 @@ export function Analytics() {
                     key={product.name}
                     className="flex items-center justify-between p-3 border border-border rounded-lg"
                   >
-                    <div className="flex items-center gap-3">
-                      <Badge variant="secondary" className="w-7 h-7 flex items-center justify-center rounded-full">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <Badge variant="secondary" className="w-7 h-7 shrink-0 flex items-center justify-center rounded-full">
                         {index + 1}
                       </Badge>
-                      <div>
-                        <p className="font-medium">{product.name}</p>
-                        <p className="text-xs text-muted-foreground">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium truncate">{product.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">
                           {product.qty} units sold
                         </p>
                       </div>

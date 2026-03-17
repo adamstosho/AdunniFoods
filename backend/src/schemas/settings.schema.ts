@@ -2,10 +2,15 @@ import { z } from 'zod';
 
 export const updateAdminCredentialsSchema = z.object({
   currentPassword: z.string().min(6, 'Current password is required'),
-  newUsername: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
-  newPassword: z.string().min(8, 'Password must be at least 8 characters long'),
-  confirmNewPassword: z.string().min(1, 'Please confirm your new password'),
-}).refine((data) => data.newPassword === data.confirmNewPassword, {
+  newUsername: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores').optional(),
+  newPassword: z.string().min(8, 'Password must be at least 8 characters long').optional(),
+  confirmNewPassword: z.string().optional(),
+}).refine((data) => {
+  if (data.newPassword || data.confirmNewPassword) {
+    return data.newPassword === data.confirmNewPassword;
+  }
+  return true;
+}, {
   message: "New passwords don't match",
   path: ['confirmNewPassword'],
 });

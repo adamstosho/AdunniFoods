@@ -70,6 +70,7 @@ export function AboutSection() {
               <img
                 src="/our-story.jpg"
                 alt="Our Story - Adunni Foods"
+                loading="lazy"
                 className="w-full h-full object-cover"
               />
             </div>

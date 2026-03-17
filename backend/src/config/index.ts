@@ -16,6 +16,7 @@ const config = {
   mongodbUri: getEnv('MONGODB_URI'),
   jwtSecret: getEnv('JWT_SECRET'),
   sendgridApiKey: getEnv('SENDGRID_API_KEY'),
+  sendgridFromEmail: getEnv('SENDGRID_FROM_EMAIL', 'no-reply@adunnifoods.com'),
   whatsappPhone: getEnv('WHATSAPP_PHONE'),
   clientOrigin: process.env.CLIENT_ORIGIN || '*',
 };

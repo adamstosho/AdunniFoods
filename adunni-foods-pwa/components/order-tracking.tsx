@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Search, Package, Phone, MessageCircle } from "lucide-react"
 import { OrderDetails } from "@/components/order-details"
 import { api, type Order } from "@/lib/api"
+import { useAppStore } from "@/lib/store"
 import { toast } from "sonner"
 
 const trackingSchema = z.object({
@@ -23,6 +24,7 @@ type TrackingFormData = z.infer<typeof trackingSchema>
 import { useSettings } from "@/lib/hooks"
 
 export function OrderTracking() {
+  const { lastTracking, setLastTracking } = useAppStore()
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
@@ -35,6 +37,7 @@ export function OrderTracking() {
     reset,
   } = useForm<TrackingFormData>({
     resolver: zodResolver(trackingSchema),
+    defaultValues: lastTracking || {},
   })
 
   const onSubmit = async (data: TrackingFormData) => {
@@ -45,6 +48,7 @@ export function OrderTracking() {
       const response = await api.trackOrder(data.orderId, data.customerPhone)
       if (response.success && response.data) {
         setOrder(response.data)
+        setLastTracking({ orderId: data.orderId, customerPhone: data.customerPhone })
         toast.success("Order found!")
       } else {
         setOrder(null)

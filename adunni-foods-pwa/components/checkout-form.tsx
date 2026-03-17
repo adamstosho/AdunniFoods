@@ -50,6 +50,30 @@ export function CheckoutForm() {
   })
 
   const watchedPaymentMethod = watch("paymentMethod")
+  const watchedFields = watch()
+
+  // Persistence: Load from localStorage on mount
+  useEffect(() => {
+    const savedData = localStorage.getItem("checkout-form-data")
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData)
+        Object.entries(parsed).forEach(([key, value]) => {
+          if (value) setValue(key as any, value)
+        })
+      } catch (e) {
+        console.error("Failed to parse saved checkout data", e)
+      }
+    }
+  }, [setValue])
+
+  // Persistence: Save to localStorage on change
+  useEffect(() => {
+    const subscription = watch((value) => {
+      localStorage.setItem("checkout-form-data", JSON.stringify(value))
+    })
+    return () => subscription.unsubscribe()
+  }, [watch])
 
   useEffect(() => {
     if (items.length === 0) {
@@ -89,30 +113,36 @@ export function CheckoutForm() {
         const generatedOrderId = response.data._id || ""
         const shortId = generatedOrderId.slice(-8).toUpperCase()
 
+        const backendWhatsappUrl =
+          typeof (response.data as any)?.whatsappUrl === "string" ? ((response.data as any).whatsappUrl as string) : ""
+
+        // Fallback message (emoji-free, consistent on all devices)
         const orderSummary = items
-          .map((item) => `• ${item.qty}x ${item.name} - ₦${(item.price * item.qty).toFixed(2)}`)
+          .map((item) => `- ${item.qty}x ${item.name} - NGN ${(item.price * item.qty).toFixed(2)}`)
           .join("\n")
 
-        const whatsappMessage = encodeURIComponent(
-          `*📦 NEW ORDER - ${settings?.storeName || "ADUNNI FOODS"}*\n` +
-          `--------------------------\n` +
-          `🆔 *Order ID:* #${shortId}\n` +
-          `👤 *Customer:* ${data.customerName}\n` +
-          `📱 *Phone:* ${data.customerPhone}\n` +
-          `📍 *Address:* ${data.address}\n` +
-          `--------------------------\n` +
-          `*🛒 ITEMS:*\n${orderSummary}\n` +
-          `--------------------------\n` +
-          `📝 *Notes:* ${data.notes || "None"}\n` +
-          `💳 *Payment:* ${paymentMethods.find((p) => p.id === data.paymentMethod)?.name}\n` +
-          `💰 *TOTAL AMOUNT: ₦${finalTotal.toFixed(2)}*\n` +
-          `--------------------------\n` +
-          `*Please confirm my order and let me know when it will be delivered. Thank you!*`,
+        const fallbackWhatsappMessage = encodeURIComponent(
+          `NEW ORDER - ${settings?.storeName || "ADUNNI FOODS"}\n` +
+            `--------------------------\n` +
+            `Order ID: #${shortId}\n` +
+            `Customer: ${data.customerName}\n` +
+            `Phone: ${data.customerPhone}\n` +
+            `Address: ${data.address}\n` +
+            `--------------------------\n` +
+            `ITEMS:\n${orderSummary}\n` +
+            `--------------------------\n` +
+            `Notes: ${data.notes || "None"}\n` +
+            `Payment: ${paymentMethods.find((p) => p.id === data.paymentMethod)?.name}\n` +
+            `TOTAL: NGN ${finalTotal.toFixed(2)}\n` +
+            `--------------------------\n` +
+            `Please confirm my order and let me know when it will be delivered. Thank you!`,
         )
 
-        const whatsappUrl = `https://wa.me/${settings?.whatsappPhone || "2347030322419"}?text=${whatsappMessage}`
+        const fallbackWhatsappUrl = `https://wa.me/${settings?.whatsappPhone || "2347030322419"}?text=${fallbackWhatsappMessage}`
+        const whatsappUrl = backendWhatsappUrl || fallbackWhatsappUrl
 
         clearCart()
+        localStorage.removeItem("checkout-form-data")
         // Store details for success page
         sessionStorage.setItem("lastOrderId", generatedOrderId)
         sessionStorage.setItem("whatsappUrl", whatsappUrl)
@@ -269,13 +299,13 @@ export function CheckoutForm() {
                         <h4 className="font-medium mb-2">Bank Transfer Details</h4>
                         <div className="text-sm space-y-1">
                           <p>
-                            <strong>Bank:</strong> {settings?.bankName || "First Bank of Nigeria"}
+                            <strong>Bank:</strong> {settings?.bankName || "Polaris Bank"}
                           </p>
                           <p>
-                            <strong>Account Name:</strong> {settings?.accountName || "Adunni Foods Ltd"}
+                            <strong>Account Name:</strong> {settings?.accountName || "Adunni Foods and Apparel"}
                           </p>
                           <p>
-                            <strong>Account Number:</strong> {settings?.accountNumber || "1234567890"}
+                            <strong>Account Number:</strong> {settings?.accountNumber || "4092107581"}
                           </p>
                           <p className="text-muted-foreground mt-2">
                             Please send payment confirmation via WhatsApp after transfer.

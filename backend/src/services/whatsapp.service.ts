@@ -1,9 +1,11 @@
 import config from '../config';
 import { OrderDocument } from '../models/Order';
 
-export function buildWhatsAppUrl(order: Pick<OrderDocument, 'customerName' | 'customerPhone' | 'address' | 'items' | 'totalAmount' | 'paymentMethod'>) {
+export function buildWhatsAppUrl(order: OrderDocument) {
   const lines: string[] = [];
-  lines.push(`Adunni Foods Order`);
+  const shortId = (order._id as any).toString().slice(-8).toUpperCase();
+  lines.push(`Adunni Foods Order - #${shortId}`);
+  lines.push(`Order ID: ${order._id}`);
   lines.push(`Name: ${order.customerName}`);
   lines.push(`Phone: ${order.customerPhone}`);
   lines.push(`Address: ${order.address}`);

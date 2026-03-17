@@ -108,9 +108,11 @@ export function ProductManagement() {
               Add Product
             </Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editingProduct ? "Edit Product" : "Add New Product"}</DialogTitle>
+          <DialogContent className="sm:max-w-[700px] p-0 border-border/60 shadow-2xl overflow-hidden rounded-xl">
+            <DialogHeader className="px-6 py-5 border-b border-border/40 bg-zinc-50/50 dark:bg-zinc-900/50">
+              <DialogTitle className="text-xl font-heading font-semibold">
+                {editingProduct ? "Edit Product" : "Add New Product"}
+              </DialogTitle>
             </DialogHeader>
             <ProductForm
               product={editingProduct}
@@ -366,164 +368,205 @@ function ProductForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
-      {/* Category Selection */}
-      <div className="space-y-2">
-        <Label htmlFor="category">Product Category *</Label>
-        <select
-          id="category"
-          value={formData.category}
-          onChange={(e) => setFormData({ ...formData, category: e.target.value as ProductCategory })}
-          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          required
-        >
-          {Object.entries(categoryLabels).map(([value, label]) => (
-            <option key={value} value={value}>{label}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Product Name */}
-      <div className="space-y-2">
-        <Label htmlFor="name">Product Name *</Label>
-        <Input
-          id="name"
-          value={formData.name}
-          onChange={(e) => handleNameChange(e.target.value)}
-          placeholder={isPlantainChips ? "e.g., Ripe Plantain Chips 1kg Bucket" : "e.g., Fresh Orange Juice"}
-          required
-        />
-      </div>
-
-      {/* Slug (auto-generated but editable) */}
-      <div className="space-y-2">
-        <Label htmlFor="slug">URL Slug *</Label>
-        <Input
-          id="slug"
-          value={formData.slug}
-          onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-          placeholder="auto-generated-from-name"
-          required
-        />
-        <p className="text-xs text-muted-foreground">Auto-generated from product name. Edit if needed.</p>
-      </div>
-
-      {/* Description */}
-      <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          placeholder="Describe your product..."
-          rows={2}
-        />
-      </div>
-
-      {/* Packaging Type (only for plantain chips) */}
-      {isPlantainChips && (
-        <div className="space-y-2">
-          <Label htmlFor="packagingType">Packaging Type *</Label>
-          <select
-            id="packagingType"
-            value={formData.packagingType}
-            onChange={(e) => setFormData({ ...formData, packagingType: e.target.value as PackagingType })}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            required
-          >
-            <option value="bucket">Bucket</option>
-            <option value="refill">Refill (Nylon Seal)</option>
-          </select>
-        </div>
-      )}
-
-      {/* Weight (for kg-based products) */}
-      {isPlantainChips && (
-        <div className="space-y-2">
-          <Label htmlFor="weight">Weight (kg) *</Label>
-          <Input
-            id="weight"
-            type="number"
-            step="0.1"
-            min="0.1"
-            value={formData.weight}
-            onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
-            placeholder="e.g., 1, 0.5, 2"
-            required
-          />
-          <p className="text-xs text-muted-foreground">Enter weight in kilograms (e.g., 0.5 for 500g, 1 for 1kg)</p>
-        </div>
-      )}
-
-      {/* Price and Stock */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="price">
-            Price (₦) {isPlantainChips ? "per unit" : ""} *
-          </Label>
-          <Input
-            id="price"
-            type="number"
-            step="0.01"
-            min="0"
-            value={formData.price}
-            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-            placeholder="0.00"
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="stock">Stock Quantity *</Label>
-          <Input
-            id="stock"
-            type="number"
-            min="0"
-            value={formData.stock}
-            onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-            placeholder="0"
-            required
-          />
-        </div>
-      </div>
-
-      {/* Product Image */}
-      <div className="space-y-2">
-        <Label htmlFor="image">Product Image</Label>
-        {product?.images?.[0] && !file && (
-          <div className="mb-2">
-            <img
-              src={product.images[0]}
-              alt="Current product"
-              className="w-20 h-20 object-cover rounded-md border"
+    <form onSubmit={handleSubmit} className="flex flex-col h-full max-h-[85vh] sm:max-h-[80vh]">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Product Name */}
+          <div className="space-y-2">
+            <Label htmlFor="name" className="text-sm font-semibold text-foreground/90">Product Name <span className="text-destructive">*</span></Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => handleNameChange(e.target.value)}
+              placeholder={isPlantainChips ? "e.g., Ripe Plantain Chips 1kg" : "e.g., Fresh Orange Juice"}
+              className="bg-background/80 h-11"
+              required
             />
-            <p className="text-xs text-green-600 mt-1">Current image</p>
           </div>
-        )}
-        <div className="flex items-center gap-3">
-          <Input
-            id="image"
-            type="file"
-            accept="image/*"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
-          />
-          <Upload className="w-4 h-4 text-muted-foreground" />
+
+          {/* Category Selection */}
+          <div className="space-y-2">
+            <Label htmlFor="category" className="text-sm font-semibold text-foreground/90">Category <span className="text-destructive">*</span></Label>
+            <div className="relative">
+              <select
+                id="category"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value as ProductCategory })}
+                className="flex h-11 w-full appearance-none rounded-md border border-input bg-background/80 px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                required
+              >
+                {Object.entries(categoryLabels).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 opacity-50">
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.18179 6.18181C4.35753 6.00608 4.64245 6.00608 4.81819 6.18181L7.49999 8.86362L10.1818 6.18181C10.3575 6.00608 10.6424 6.00608 10.8182 6.18181C10.9939 6.35755 10.9939 6.64247 10.8182 6.81821L7.81819 9.81821C7.73379 9.9026 7.61934 9.95001 7.49999 9.95001C7.38064 9.95001 7.26618 9.9026 7.18179 9.81821L4.18179 6.81821C4.00605 6.64247 4.00605 6.35755 4.18179 6.18181Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
+              </div>
+            </div>
+          </div>
         </div>
-        {file && (
-          <p className="text-xs text-blue-600">New image selected: {file.name}</p>
-        )}
-        <p className="text-xs text-muted-foreground">
-          {product?.images?.[0] ? "Upload a new image to replace the current one." : "Upload a product image."}
-        </p>
+
+        {/* Description */}
+        <div className="space-y-2">
+          <Label htmlFor="description" className="text-sm font-semibold text-foreground/90">Description</Label>
+          <Textarea
+            id="description"
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            placeholder="Write a brief description of the product..."
+            className="resize-none bg-background/80 min-h-[90px]"
+          />
+        </div>
+
+        {/* Pricing, Stock, and Dimensions */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 md:p-5 rounded-xl border border-border/60 bg-muted/20">
+          <div className="space-y-2">
+            <Label htmlFor="price" className="text-sm font-semibold text-foreground/90">Price (₦) <span className="text-destructive">*</span></Label>
+            <Input
+              id="price"
+              type="number"
+              step="0.01"
+              min="0"
+              value={formData.price}
+              onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+              placeholder="0.00"
+              className="bg-background h-10"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="stock" className="text-sm font-semibold text-foreground/90">Stock Qty <span className="text-destructive">*</span></Label>
+            <Input
+              id="stock"
+              type="number"
+              min="0"
+              value={formData.stock}
+              onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+              placeholder="100"
+              className="bg-background h-10"
+              required
+            />
+          </div>
+
+          {isPlantainChips ? (
+            <>
+              <div className="space-y-2 col-span-2 md:col-span-1">
+                <Label htmlFor="weight" className="text-sm font-semibold text-foreground/90">Weight (kg) <span className="text-destructive">*</span></Label>
+                <Input
+                  id="weight"
+                  type="number"
+                  step="0.1"
+                  min="0.1"
+                  value={formData.weight}
+                  onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+                  placeholder="e.g., 0.5"
+                  className="bg-background h-10"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2 col-span-2 md:col-span-1">
+                <Label htmlFor="packagingType" className="text-sm font-semibold text-foreground/90">Packaging <span className="text-destructive">*</span></Label>
+                 <div className="relative">
+                  <select
+                    id="packagingType"
+                    value={formData.packagingType}
+                    onChange={(e) => setFormData({ ...formData, packagingType: e.target.value as PackagingType })}
+                    className="flex h-10 w-full appearance-none rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    required
+                  >
+                    <option value="bucket">Bucket</option>
+                    <option value="refill">Refill</option>
+                  </select>
+                  <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 opacity-50">
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.18179 6.18181C4.35753 6.00608 4.64245 6.00608 4.81819 6.18181L7.49999 8.86362L10.1818 6.18181C10.3575 6.00608 10.6424 6.00608 10.8182 6.18181C10.9939 6.35755 10.9939 6.64247 10.8182 6.81821L7.81819 9.81821C7.73379 9.9026 7.61934 9.95001 7.49999 9.95001C7.38064 9.95001 7.26618 9.9026 7.18179 9.81821L4.18179 6.81821C4.00605 6.64247 4.00605 6.35755 4.18179 6.18181Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
+                  </div>
+                 </div>
+              </div>
+            </>
+          ) : (
+             <div className="col-span-2 hidden md:block"></div>
+          )}
+        </div>
+
+        {/* Product Image */}
+        <div className="space-y-3 pt-2">
+          <Label htmlFor="image" className="text-sm font-semibold text-foreground/90">Product Image</Label>
+          <div className="flex flex-col sm:flex-row items-center gap-4 p-5 border border-dashed border-border/80 rounded-xl bg-background/50 hover:bg-muted/40 transition-colors">
+            {product?.images?.[0] && !file ? (
+              <div className="relative w-24 h-24 shrink-0 overflow-hidden rounded-lg border border-border shadow-sm group">
+                <img
+                  src={product.images[0]}
+                  alt="Current product"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <span className="text-xs text-white font-medium">Current</span>
+                </div>
+              </div>
+            ) : file ? (
+               <div className="w-24 h-24 shrink-0 bg-primary/10 border-primary/30 border rounded-lg flex flex-col items-center justify-center p-2 text-center">
+                 <Upload className="w-6 h-6 text-primary mb-2" />
+                 <span className="text-[10px] text-primary font-semibold line-clamp-2 leading-tight">{file.name}</span>
+               </div>
+            ) : (
+                <div className="w-24 h-24 shrink-0 bg-muted/60 border border-border rounded-lg flex items-center justify-center">
+                 <Upload className="w-7 h-7 text-muted-foreground/60" />
+               </div>
+            )}
+            <div className="flex-1 space-y-2 text-center sm:text-left w-full">
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <Label 
+                  htmlFor="image" 
+                  className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-5 shadow-sm w-full sm:w-auto"
+                >
+                  Choose Image
+                </Label>
+                <Input
+                  id="image"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground/80">
+                {file ? "New image selected." : "Use a 1:1 aspect ratio image, 5MB max."}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Advanced Settings (Slug) */}
+        <div className="space-y-2 pt-2">
+          <Label htmlFor="slug" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Advanced: URL Slug</Label>
+          <Input
+            id="slug"
+            value={formData.slug}
+            onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+            placeholder="auto-generated-from-name"
+            className="bg-background/40 text-muted-foreground h-9 font-mono text-xs"
+            required
+          />
+        </div>
       </div>
 
       {/* Submit Buttons */}
-      <div className="flex gap-3 pt-4 sticky bottom-0 bg-background pb-2">
-        <Button type="submit" disabled={isSubmitting} className="flex-1">
-          {isSubmitting ? "Saving..." : (product ? "Update Product" : "Add Product")}
-        </Button>
-        <Button type="button" variant="outline" onClick={onSuccess}>
+      <div className="p-4 sm:p-5 border-t border-border/40 bg-zinc-50/50 dark:bg-zinc-900/50 flex flex-col sm:flex-row items-center justify-end gap-3 rounded-b-xl shrink-0">
+        <Button type="button" variant="outline" onClick={onSuccess} className="w-full sm:w-auto bg-background">
           Cancel
+        </Button>
+        <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-w-[140px] shadow-md font-semibold">
+          {isSubmitting ? (
+            <span className="flex items-center justify-center gap-2">
+              <span className="w-4 h-4 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin"></span>
+              Saving...
+            </span>
+          ) : (
+             product ? "Save Changes" : "Create Product"
+          )}
         </Button>
       </div>
     </form>

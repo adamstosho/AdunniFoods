@@ -24,8 +24,14 @@ export async function updateCredentials(req: Request, res: Response) {
   const ok = await bcrypt.compare(currentPassword, admin.passwordHash);
   if (!ok) return res.status(400).json({ message: 'Current password is incorrect' });
 
-  admin.username = newUsername;
-  admin.passwordHash = await bcrypt.hash(newPassword, 10);
+  if (newUsername) {
+    admin.username = newUsername;
+  }
+  
+  if (newPassword) {
+    admin.passwordHash = await bcrypt.hash(newPassword, 10);
+  }
+  
   await admin.save();
 
   res.json({

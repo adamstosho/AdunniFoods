@@ -21,12 +21,13 @@ info:
     
     ## Base URL
     - Development: `http://localhost:5000/api`
-    - Production: `https://your-domain.com/api`
+    - Production: `https://api.adunnifoods.com/api`
     
   version: 1.0.0
   contact:
-    name: Adunni Foods Support
-    email: adunnifoods8@gmail.com
+    name: API Support
+    email: adunnifoods.ltd@gmail.com
+    url: https://adunnifoods.vercel.app
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT

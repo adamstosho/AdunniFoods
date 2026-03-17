@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Play } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 export function HeroSection() {
   const [isVisible, setIsVisible] = useState(false)
@@ -13,14 +14,19 @@ export function HeroSection() {
   }, [])
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 lg:pt-0">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 lg:pt-32">
       <div className="absolute inset-0 z-0">
-        <img
+        <Image
           src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image.png-3JuRMrq25YrIGsCYA1lXAUNGQNkeqg.jpeg"
           alt="Delicious golden plantain chips"
-          className="w-full h-full object-cover"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/60" />
+        <div className="absolute inset-0 bg-linear-to-r from-black/60 via-black/40 to-black/60" />
+        {/* Tracking light sweep across hero */}
+        <div className="pointer-events-none absolute inset-x-0 top-1/3 h-40 bg-linear-to-r from-transparent via-white/12 to-transparent blur-3xl opacity-60 animate-[heroLight_10s_linear_infinite]" />
       </div>
 
       <div className="absolute inset-0 z-10">

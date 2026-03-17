@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Search, Eye, Download } from "lucide-react"
 import { api, type Order } from "@/lib/api"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
 export function OrderManagement() {
   const [orders, setOrders] = useState<Order[]>([])
@@ -186,11 +187,11 @@ export function OrderManagement() {
                       })}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3 md:justify-end">
-                    <Badge className={getStatusColor(order.status || "Pending")}>
+                  <div className="flex items-center gap-3 md:justify-end shrink-0">
+                    <Badge className={cn("shrink-0 text-[10px] px-1.5 py-0", getStatusColor(order.status || "Pending"))}>
                       {order.status}
                     </Badge>
-                    <span className="text-xl font-bold text-primary whitespace-nowrap">
+                    <span className="text-lg font-bold text-primary whitespace-nowrap">
                       ₦{order.totalAmount.toFixed(2)}
                     </span>
                   </div>
@@ -198,26 +199,26 @@ export function OrderManagement() {
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-1">
-                    <h4 className="font-medium mb-2">Customer Information</h4>
-                    <p className="text-sm text-muted-foreground break-words">
+                    <h4 className="font-medium text-xs mb-1">Customer Information</h4>
+                    <p className="text-xs text-muted-foreground break-words">
                       {order.customerName}
                     </p>
-                    <p className="text-sm text-muted-foreground break-words">
+                    <p className="text-xs text-muted-foreground break-words">
                       {order.customerPhone}
                     </p>
-                    <p className="text-sm text-muted-foreground break-words line-clamp-3">
+                    <p className="text-[11px] leading-tight text-muted-foreground break-words">
                       {order.address}
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <h4 className="font-medium mb-2">Order Items</h4>
-                    <div className="space-y-1 max-h-32 overflow-y-auto pr-1">
+                    <h4 className="font-medium text-xs mb-1">Order Items</h4>
+                    <div className="space-y-1 max-h-40 overflow-y-auto pr-1">
                       {order.items.map((item, index) => (
                         <p
                           key={index}
-                          className="text-sm text-muted-foreground flex justify-between gap-2"
+                          className="text-[11px] leading-tight text-muted-foreground flex justify-between gap-2"
                         >
-                          <span className="truncate">
+                          <span>
                           {item.qty}x {item.name} - ₦{(item.price * item.qty).toFixed(2)}
                           </span>
                         </p>
@@ -227,9 +228,9 @@ export function OrderManagement() {
                 </div>
 
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm text-muted-foreground">Payment:</span>
-                    <Badge variant="outline" className="capitalize">
+                  <div className="flex items-center gap-2 flex-wrap text-xs">
+                    <span className="text-muted-foreground">Payment:</span>
+                    <Badge variant="outline" className="capitalize text-[10px] px-1.5 py-0">
                       {order.paymentMethod.replace("_", " ")}
                     </Badge>
                   </div>

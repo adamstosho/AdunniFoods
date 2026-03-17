@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { api, type StoreSettings } from "./api"
+import { useAppStore } from "./store"
 
 export function useSettings() {
-    const [settings, setSettings] = useState<StoreSettings | null>(null)
-    const [loading, setLoading] = useState(true)
+    const { storeSettings, setStoreSettings } = useAppStore()
+    const [settings, setSettings] = useState<StoreSettings | null>(storeSettings)
+    const [loading, setLoading] = useState(!storeSettings)
     const [error, setError] = useState<Error | null>(null)
 
     useEffect(() => {
@@ -13,11 +15,14 @@ export function useSettings() {
 
         const fetchSettings = async () => {
             try {
-                setLoading(true)
+                // If we already have settings in the store, we can skip initial loading
+                if (!storeSettings) setLoading(true)
+                
                 const response = await api.getStoreSettings()
                 if (mounted) {
                     if (response.success && response.data) {
                         setSettings(response.data)
+                        setStoreSettings(response.data)
                     } else {
                         throw new Error(response.message || "Failed to load settings")
                     }
@@ -28,7 +33,6 @@ export function useSettings() {
                 }
             } finally {
                 if (mounted) {
-                    setLoading(true) // Should be false, fixed in code below
                     setLoading(false)
                 }
             }

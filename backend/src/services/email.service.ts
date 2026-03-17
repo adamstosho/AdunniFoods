@@ -9,39 +9,51 @@ export async function sendAdminNewOrderEmail(
   to: string,
   payload: { orderId: string; customerName: string; totalAmount: number },
 ) {
+  if (!config.sendgridApiKey) return;
   const msg = {
     to,
-    from: 'no-reply@adunnifoods.com',
+    from: config.sendgridFromEmail,
     subject: `New order #${payload.orderId}`,
     text: `New order from ${payload.customerName}. Total: ₦${payload.totalAmount}.`,
   };
-  if (!config.sendgridApiKey) return; // noop for tests/dev without key
-  await sgMail.send(msg);
+  try {
+    await sgMail.send(msg);
+  } catch (err) {
+    console.error('SendGrid Admin Error:', err);
+  }
 }
 
 export async function sendCustomerOrderEmail(to: string, payload: { orderId: string; whatsappUrl: string }) {
+  if (!config.sendgridApiKey) return;
   const msg = {
     to,
-    from: 'no-reply@adunnifoods.com',
+    from: config.sendgridFromEmail,
     subject: `Your Adunni Foods order #${payload.orderId}`,
     text: `Thank you for your order! Please confirm via WhatsApp: ${payload.whatsappUrl}`,
   };
-  if (!config.sendgridApiKey) return; // noop for tests/dev without key
-  await sgMail.send(msg);
+  try {
+    await sgMail.send(msg);
+  } catch (err) {
+    console.error('SendGrid Customer Error:', err);
+  }
 }
 
 export async function sendAdminOrderStatusEmail(
   to: string,
   payload: { orderId: string; status: string; customerName: string },
 ) {
+  if (!config.sendgridApiKey) return;
   const msg = {
     to,
-    from: 'no-reply@adunnifoods.com',
+    from: config.sendgridFromEmail,
     subject: `Order #${payload.orderId} status updated`,
     text: `Order for ${payload.customerName} is now ${payload.status}.`,
   };
-  if (!config.sendgridApiKey) return; // noop for tests/dev without key
-  await sgMail.send(msg);
+  try {
+    await sgMail.send(msg);
+  } catch (err) {
+    console.error('SendGrid Status Error:', err);
+  }
 }
 
 export default { sendAdminNewOrderEmail, sendCustomerOrderEmail, sendAdminOrderStatusEmail };

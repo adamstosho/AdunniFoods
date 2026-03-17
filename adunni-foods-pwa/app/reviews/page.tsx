@@ -315,7 +315,7 @@ export default function ReviewsPage() {
                                                 </span>
                                             </div>
 
-                                            <h3 className="font-bold text-lg mb-2">{review.title || "Untithed Review"}</h3>
+                                            <h3 className="font-bold text-lg mb-2">{review.title || "Untitled Review"}</h3>
                                             <p className="text-muted-foreground text-sm leading-relaxed mb-6 italic">
                                                 "{review.comment}"
                                             </p>

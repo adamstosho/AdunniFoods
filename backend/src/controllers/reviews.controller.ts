@@ -5,7 +5,7 @@ import * as NotificationService from '../services/notification.service';
 export async function create(req: Request, res: Response) {
     const review = await ReviewService.createReview(req.body);
 
-    void NotificationService.createNotification({
+    NotificationService.createNotification({
         type: 'review_submitted',
         title: 'New review received',
         message: `New ${review.type} review from ${review.customerName} - ${review.rating} stars`,
@@ -15,7 +15,7 @@ export async function create(req: Request, res: Response) {
             rating: review.rating,
             customerName: review.customerName,
         },
-    });
+    }).catch(err => console.error('Review Notification Error:', err));
 
     res.status(201).json({ message: 'Review submitted', response: review });
 }

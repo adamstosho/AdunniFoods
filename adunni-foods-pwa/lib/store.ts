@@ -92,9 +92,34 @@ export const useCartStore = create<CartStore>()(
 interface AppStore {
   isLoading: boolean
   setLoading: (loading: boolean) => void
+  // Persistence fields
+  adminToken: string | null
+  setAdminToken: (token: string | null) => void
+  storeSettings: any | null
+  setStoreSettings: (settings: any) => void
+  lastTracking: { orderId: string; customerPhone: string } | null
+  setLastTracking: (details: { orderId: string; customerPhone: string } | null) => void
 }
 
-export const useAppStore = create<AppStore>((set) => ({
-  isLoading: false,
-  setLoading: (loading: boolean) => set({ isLoading: loading }),
-}))
+export const useAppStore = create<AppStore>()(
+  persist(
+    (set) => ({
+      isLoading: false,
+      setLoading: (loading: boolean) => set({ isLoading: loading }),
+      adminToken: null,
+      setAdminToken: (token) => set({ adminToken: token }),
+      storeSettings: null,
+      setStoreSettings: (settings) => set({ storeSettings: settings }),
+      lastTracking: null,
+      setLastTracking: (details) => set({ lastTracking: details }),
+    }),
+    {
+      name: "adunni-app-storage",
+      partialize: (state) => ({
+        adminToken: state.adminToken,
+        storeSettings: state.storeSettings,
+        lastTracking: state.lastTracking,
+      }),
+    },
+  ),
+)

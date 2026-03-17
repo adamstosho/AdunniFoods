@@ -21,11 +21,17 @@ const credentialsSchema = z
       .string()
       .min(3, "Username must be at least 3 characters")
       .max(30, "Username must be at most 30 characters")
-      .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
-    newPassword: z.string().min(8, "Password must be at least 8 characters long"),
-    confirmNewPassword: z.string().min(1, "Please confirm your new password"),
+      .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores")
+      .optional(),
+    newPassword: z.string().min(8, "Password must be at least 8 characters long").optional().or(z.literal("")),
+    confirmNewPassword: z.string().optional().or(z.literal("")),
   })
-  .refine((data) => data.newPassword === data.confirmNewPassword, {
+  .refine((data) => {
+    if (data.newPassword || data.confirmNewPassword) {
+      return data.newPassword === data.confirmNewPassword;
+    }
+    return true;
+  }, {
     message: "New passwords don't match",
     path: ["confirmNewPassword"],
   })
@@ -90,7 +96,15 @@ export function AdminSettings() {
   const onCredentialsSubmit = async (data: CredentialsFormData) => {
     try {
       setSaving(true)
-      const res = await api.updateAdminCredentials(data)
+      const payload: any = {
+        currentPassword: data.currentPassword,
+      }
+      
+      if (data.newUsername) payload.newUsername = data.newUsername
+      if (data.newPassword) payload.newPassword = data.newPassword
+      if (data.confirmNewPassword) payload.confirmNewPassword = data.confirmNewPassword
+
+      const res = await api.updateAdminCredentials(payload)
       if (res.success && res.data) {
         toast.success("Credentials updated successfully")
         setProfile((prev) => (prev ? { ...prev, username: res.data!.username } : prev))
