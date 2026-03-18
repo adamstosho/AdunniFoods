@@ -50,7 +50,7 @@ const getGalleryImages = () => [
     caption: "The perfect crunch in every bite, made with 100% natural ingredients",
   },
   {
-    src: "/our-story-main.png",
+    src: "/our-story.jpg",
     alt: "Adunni Foods brand story visual",
     caption: "Building a legacy of excellence in Nigerian healthy snacks",
   },
