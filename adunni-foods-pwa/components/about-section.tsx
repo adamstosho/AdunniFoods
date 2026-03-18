@@ -38,18 +38,19 @@ export function AboutSection() {
               Our Story
             </Badge>
             <h2 className="font-heading font-bold text-3xl lg:text-4xl text-foreground mb-6">
-              Bringing Authentic Nigerian Flavors to Your Table
+              Our Journey: From Passion to Excellence
             </h2>
-            <p className="text-muted-foreground text-lg mb-6 leading-relaxed">
-              Founded with a passion for sharing the rich culinary heritage of Nigeria, Adunni Foods specializes in
-              creating the perfect plantain chips. Our journey began in a small kitchen with a simple mission: to bring
-              the authentic taste of home-cooked Nigerian snacks to families everywhere.
-            </p>
-            <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-              Every chip is made from carefully selected plantains, sliced to perfection, and cooked using traditional
-              methods passed down through generations. We believe in quality over quantity, ensuring each batch meets
-              our high standards.
-            </p>
+            <div className="space-y-4 text-muted-foreground text-lg mb-8 leading-relaxed">
+              <p>
+                Adunni Foods is a proudly Nigerian food brand founded by Zimbiat Mojirayo Toyin, an entrepreneur and certified chef from Ilorin, Kwara State. Driven by a deep passion for healthy, well-prepared meals, what started as a small idea in 2019 evolved into a focused venture.
+              </p>
+              <p>
+                In 2022, we introduced our naturally made plantain chips, and by 2023, Adunni Foods had grown into a fully committed business built on quality, consistency, and trust. Our focus is simple: producing natural, hygienic, and delicious plantain chips that people can enjoy without compromise.
+              </p>
+              <p>
+                Over the years, we've grown steadily, serving customers across Nigeria and beyond. Through entrepreneurship programmes, awards, and exhibitions, we continue to build a reputation for excellence, delivering healthy, affordable options while putting customer satisfaction first.
+              </p>
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               {features.map((feature, index) => (
@@ -68,8 +69,8 @@ export function AboutSection() {
           <div className="relative">
             <div className="aspect-square rounded-2xl overflow-hidden">
               <img
-                src="/our-story.jpg"
-                alt="Our Story - Adunni Foods"
+                src="/our-story-main.png"
+                alt="Adunni Foods - Natural Plantain Chips Production"
                 loading="lazy"
                 className="w-full h-full object-cover"
               />

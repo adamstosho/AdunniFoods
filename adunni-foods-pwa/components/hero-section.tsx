@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Play } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { AnimatedChips } from "@/components/animated-chips"
 
 export function HeroSection() {
   const [isVisible, setIsVisible] = useState(false)
@@ -17,7 +18,7 @@ export function HeroSection() {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 lg:pt-32">
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image.png-3JuRMrq25YrIGsCYA1lXAUNGQNkeqg.jpeg"
+          src="/plantain-chips-hero.png"
           alt="Delicious golden plantain chips"
           fill
           priority
@@ -27,6 +28,11 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-linear-to-r from-black/60 via-black/40 to-black/60" />
         {/* Tracking light sweep across hero */}
         <div className="pointer-events-none absolute inset-x-0 top-1/3 h-40 bg-linear-to-r from-transparent via-white/12 to-transparent blur-3xl opacity-60 animate-[heroLight_10s_linear_infinite]" />
+      </div>
+
+      {/* Animated Chips Graphics */}
+      <div className="absolute inset-0 z-5">
+        <AnimatedChips />
       </div>
 
       <div className="absolute inset-0 z-10">

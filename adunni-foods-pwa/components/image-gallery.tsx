@@ -13,45 +13,62 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 
-const galleryImages = [
+const getGalleryImages = () => [
   {
-    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202025-08-08%20at%2014.04.54_b7290734.jpg-fwi1Hd2rf5mTBSJ1XrlGD2aLSRO917.jpeg",
-    alt: "Founder showcasing Adunni Foods plantain chips products",
+    src: "/founder-main.png",
+    alt: "Zimbiat Mojirayo Toyin showcasing Adunni Foods products",
     caption: "Our founder proudly displaying our premium plantain chips collection",
   },
   {
-    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202025-08-08%20at%2014.03.39_43794eb2.jpg-DEdW2jaZ92OAVveG7j7gWag5wWbbZU.jpeg",
-    alt: "Happy customers at Adunni Foods market stall",
-    caption: "Satisfied customers enjoying our products at local market events",
+    src: "/gallery-production.png",
+    alt: "High-quality production of Adunni Foods plantain chips",
+    caption: "Meticulous preparation of our crispy, golden plantain chips",
   },
   {
-    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202025-08-08%20at%2014.03.42_d13befa1.jpg-cSqyR6TgyXadm7EgEFmjaCRheodaDu.jpeg",
-    alt: "Customer with Adunni Foods branded bag",
-    caption: "Customer with our signature branded packaging",
+    src: "/gallery-product-3.png",
+    alt: "Premium plantain chips in eco-friendly packaging",
+    caption: "Premium plantain chips presented in our signature eco-friendly packaging",
   },
   {
-    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202025-08-08%20at%2014.04.56_01cc5f1f.jpg-uDmvPKA4w8wnCz4cHAMDsAzpBtMpxY.jpeg",
-    alt: "Professional product display by founder",
-    caption: "Professional display of our various plantain chip varieties",
+    src: "/gallery-founder-products.jpg",
+    alt: "Founder with multiple product varieties",
+    caption: "A variety of packaging options to suit every customer's needs",
   },
   {
-    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202025-08-08%20at%2014.03.41_72b04582.jpg-9xaGh568V8nKUJk2sokvwMNVKsDl5q.jpeg",
-    alt: "Customer examining Adunni Foods products",
-    caption: "Customer appreciating the quality of our plantain chips",
+    src: "/gallery-product-detail-1.png",
+    alt: "Close up of Adunni Foods plantain chips packaging",
+    caption: "Premium, hygienic packaging ensuring freshness and quality",
   },
   {
-    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202025-08-08%20at%2014.03.42_5d21f3d8.jpg-YNBuHa8KgeClTwMtqEyisrDbZXQQyO.jpeg",
-    alt: "Happy customer with Adunni Foods bag",
-    caption: "Another satisfied customer with our premium products",
+    src: "/gallery-product-4.png",
+    alt: "Close up of crispy plantain chips",
+    caption: "A closer look at the natural, golden crunch of Adunni Foods chips",
+  },
+  {
+    src: "/gallery-product-detail-2.png",
+    alt: "Crispy plantain chips close up",
+    caption: "The perfect crunch in every bite, made with 100% natural ingredients",
+  },
+  {
+    src: "/our-story-main.png",
+    alt: "Adunni Foods brand story visual",
+    caption: "Building a legacy of excellence in Nigerian healthy snacks",
   },
 ]
 
 export function ImageGallery() {
   const [selectedImage, setSelectedImage] = useState<number | null>(null)
   const [api, setApi] = useState<CarouselApi | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const openModal = (index: number) => setSelectedImage(index)
   const closeModal = () => setSelectedImage(null)
+
+  const galleryImages = getGalleryImages()
 
   // Auto-scroll horizontally (smooth, mobile-friendly)
   useEffect(() => {
@@ -131,6 +148,7 @@ export function ImageGallery() {
         </motion.div>
 
         {/* Premium Embla Carousel Gallery */}
+        {mounted && (
         <motion.div
            initial={{ opacity: 0, scale: 0.95 }}
            whileInView={{ opacity: 1, scale: 1 }}
@@ -188,6 +206,7 @@ export function ImageGallery() {
             </div>
           </Carousel>
         </motion.div>
+        )}
 
         {/* Modal Viewer */}
         <AnimatePresence>

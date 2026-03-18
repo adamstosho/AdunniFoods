@@ -16,8 +16,8 @@ export function FounderSection() {
           >
             <div className="relative overflow-hidden rounded-2xl">
               <img
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202025-08-08%20at%2014.04.57_a03fe5a9.jpg-QTaqzv5ALYz4byHlvNXSw2qZJ6Ur1N.jpeg"
-                alt="Adunni Foods Founder - Professional chef in white coat with plantain chip products"
+                src="/founder-main.png"
+                alt="Zimbiat Mojirayo Toyin - Founder of Adunni Foods"
                 className="w-full h-[400px] lg:h-[600px] object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
@@ -44,11 +44,9 @@ export function FounderSection() {
             className="space-y-6"
           >
             <div>
-              <h2 className="text-4xl font-bold text-foreground mb-4 font-serif">Meet Our Founder</h2>
+              <h2 className="text-4xl font-bold text-foreground mb-4 font-serif">Meet Zimbiat Mojirayo Toyin</h2>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                With a passion for authentic Nigerian flavors and a commitment to quality, our founder has dedicated
-                years to perfecting the art of plantain chip making. From humble beginnings to becoming a trusted name
-                in premium snacks.
+                An entrepreneur and certified chef from Ilorin, Kwara State, with a background in Home Economics from the University of Ilorin. Her journey into food began with a deep passion for healthy, well-prepared meals and snacks, leading to the birth of Adunni Foods.
               </p>
             </div>
 
