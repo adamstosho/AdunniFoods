@@ -374,7 +374,9 @@ function ProductCard({ product, viewMode, onAddToCart }: ProductCardProps) {
         <div className="mt-auto pt-4 border-t border-border/40">
           <div className="flex items-center justify-between mb-4">
             <span className="text-sm font-medium text-muted-foreground">Price</span>
-            <span className="text-xl font-bold text-primary">₦{product.price.toLocaleString()}</span>
+            <span className="text-xl font-bold text-primary">
+              {product.cartonPrice ? `From ₦${product.price.toLocaleString()}` : `₦${product.price.toLocaleString()}`}
+            </span>
           </div>
           <Button
             onClick={onAddToCart}

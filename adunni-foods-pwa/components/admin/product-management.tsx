@@ -189,12 +189,17 @@ export function ProductManagement() {
                   )}
                   {product.packagingType && product.packagingType !== 'none' && (
                     <Badge variant="outline" className="text-xs capitalize">
-                      {product.packagingType === 'refill' ? 'Refill Pack' : 'Bucket'}
+                      {product.packagingType}
                     </Badge>
                   )}
                   {product.unit && (
                     <Badge variant="outline" className="text-xs">
                       per {product.unit}
+                    </Badge>
+                  )}
+                  {product.cartonPrice && (
+                    <Badge variant="outline" className="text-xs bg-primary/5 text-primary border-primary/20">
+                      Carton: ₦{product.cartonPrice.toFixed(0)} ({product.unitsPerCarton || 1} units)
                     </Badge>
                   )}
                 </div>
@@ -242,9 +247,11 @@ function ProductForm({
     description: product?.description || "",
     category: product?.category || "ripe_plantain_chips" as ProductCategory,
     price: product?.price?.toString() || "",
+    cartonPrice: product?.cartonPrice?.toString() || "",
+    unitsPerCarton: product?.unitsPerCarton?.toString() || "1",
     unit: product?.unit || "kg" as ProductUnit,
     weight: product?.weight?.toString() || "",
-    packagingType: product?.packagingType || "bucket" as PackagingType,
+    packagingType: product?.packagingType || "plastic" as PackagingType,
     stock: product?.stock?.toString() || "",
   })
 
@@ -255,9 +262,11 @@ function ProductForm({
       description: product?.description || "",
       category: product?.category || "ripe_plantain_chips",
       price: product?.price?.toString() || "",
+      cartonPrice: product?.cartonPrice?.toString() || "",
+      unitsPerCarton: product?.unitsPerCarton?.toString() || "1",
       unit: product?.unit || "kg",
       weight: product?.weight?.toString() || "",
-      packagingType: product?.packagingType || "bucket",
+      packagingType: product?.packagingType || "plastic",
       stock: product?.stock?.toString() || "",
     })
     setFile(null)
@@ -325,6 +334,8 @@ function ProductForm({
         description: formData.description,
         category: formData.category,
         price: parseFloat(formData.price),
+        cartonPrice: formData.cartonPrice ? parseFloat(formData.cartonPrice) : undefined,
+        unitsPerCarton: formData.unitsPerCarton ? parseInt(formData.unitsPerCarton) : 1,
         unit: formData.unit,
         weight: isPlantainChips && formData.weight ? parseFloat(formData.weight) : undefined,
         packagingType: isPlantainChips ? formData.packagingType : "none" as PackagingType,
@@ -362,8 +373,8 @@ function ProductForm({
   }
 
   const packagingLabels: Record<PackagingType, string> = {
-    bucket: "Bucket",
-    refill: "Refill (Nylon Seal)",
+    plastic: "Plastic",
+    pouch: "Pouch",
     none: "None",
   }
 
@@ -437,6 +448,33 @@ function ProductForm({
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="cartonPrice" className="text-sm font-semibold text-foreground/90">Carton Price (optional)</Label>
+            <Input
+              id="cartonPrice"
+              type="number"
+              step="0.01"
+              min="0"
+              value={formData.cartonPrice}
+              onChange={(e) => setFormData({ ...formData, cartonPrice: e.target.value })}
+              placeholder="0.00"
+              className="bg-background h-10"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="unitsPerCarton" className="text-sm font-semibold text-foreground/90">Units/Carton</Label>
+            <Input
+              id="unitsPerCarton"
+              type="number"
+              min="1"
+              value={formData.unitsPerCarton}
+              onChange={(e) => setFormData({ ...formData, unitsPerCarton: e.target.value })}
+              placeholder="12"
+              className="bg-background h-10"
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="stock" className="text-sm font-semibold text-foreground/90">Stock Qty <span className="text-destructive">*</span></Label>
             <Input
               id="stock"
@@ -457,11 +495,11 @@ function ProductForm({
                 <Input
                   id="weight"
                   type="number"
-                  step="0.1"
-                  min="0.1"
+                  step="0.001"
+                  min="0.01"
                   value={formData.weight}
                   onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
-                  placeholder="e.g., 0.5"
+                  placeholder="e.g., 0.25"
                   className="bg-background h-10"
                   required
                 />
@@ -477,8 +515,8 @@ function ProductForm({
                     className="flex h-10 w-full appearance-none rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     required
                   >
-                    <option value="bucket">Bucket</option>
-                    <option value="refill">Refill</option>
+                    <option value="plastic">Plastic</option>
+                    <option value="pouch">Pouch</option>
                   </select>
                   <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 opacity-50">
                     <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.18179 6.18181C4.35753 6.00608 4.64245 6.00608 4.81819 6.18181L7.49999 8.86362L10.1818 6.18181C10.3575 6.00608 10.6424 6.00608 10.8182 6.18181C10.9939 6.35755 10.9939 6.64247 10.8182 6.81821L7.81819 9.81821C7.73379 9.9026 7.61934 9.95001 7.49999 9.95001C7.38064 9.95001 7.26618 9.9026 7.18179 9.81821L4.18179 6.81821C4.00605 6.64247 4.00605 6.35755 4.18179 6.18181Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>

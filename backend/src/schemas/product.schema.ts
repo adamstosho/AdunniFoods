@@ -8,7 +8,9 @@ export const createProductSchema = z.object({
   price: z.number().nonnegative(),
   unit: z.enum(['kg', 'piece', 'bottle']).default('piece'),
   weight: z.number().nonnegative().optional(),
-  packagingType: z.enum(['bucket', 'refill', 'none']).default('none'),
+  packagingType: z.enum(['plastic', 'pouch', 'none']).default('none'),
+  cartonPrice: z.number().nonnegative().optional(),
+  unitsPerCarton: z.number().int().positive().optional().default(1),
   images: z.array(z.string()).optional().default([]),
   stock: z.number().int().nonnegative().optional().default(0),
 });

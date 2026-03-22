@@ -101,6 +101,7 @@ export function CheckoutForm() {
           name: item.name,
           qty: item.qty,
           price: item.price,
+          unitType: item.unitType,
         })),
         totalAmount: finalTotal,
         paymentMethod: data.paymentMethod,
@@ -118,7 +119,10 @@ export function CheckoutForm() {
 
         // Fallback message (emoji-free, consistent on all devices)
         const orderSummary = items
-          .map((item) => `- ${item.qty}x ${item.name} - NGN ${(item.price * item.qty).toFixed(2)}`)
+          .map((item) => {
+            const unitSuffix = item.unitType === 'carton' ? ' (Carton)' : '';
+            return `- ${item.qty}x ${item.name}${unitSuffix} - NGN ${(item.price * item.qty).toFixed(2)}`;
+          })
           .join("\n")
 
         const fallbackWhatsappMessage = encodeURIComponent(
@@ -133,9 +137,10 @@ export function CheckoutForm() {
             `--------------------------\n` +
             `Notes: ${data.notes || "None"}\n` +
             `Payment: ${paymentMethods.find((p) => p.id === data.paymentMethod)?.name}\n` +
-            `TOTAL: NGN ${finalTotal.toFixed(2)}\n` +
+            `TOTAL (excl. delivery): NGN ${totalPrice.toFixed(2)}\n` +
+            `Delivery: Quote to be provided\n` +
             `--------------------------\n` +
-            `Please confirm my order and let me know when it will be delivered. Thank you!`,
+            `Please confirm my order and send a delivery quote based on my location. Thank you!`,
         )
 
         const fallbackWhatsappUrl = `https://wa.me/${settings?.whatsappPhone || "2347030322419"}?text=${fallbackWhatsappMessage}`
@@ -396,14 +401,15 @@ export function CheckoutForm() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Delivery Fee</span>
-                  <span>{deliveryFee === 0 ? "Free" : `₦${deliveryFee.toFixed(2)}`}</span>
+                  <span className="text-primary font-medium italic">Calculated after order (Quotes provided)</span>
                 </div>
                 {totalPrice >= (settings?.deliveryFeeThreshold ?? 50) && <div className="text-xs text-green-600">Free delivery on orders over ₦{settings?.deliveryFeeThreshold ?? 50}!</div>}
                 <Separator />
                 <div className="flex justify-between font-semibold text-lg">
-                  <span>Total</span>
-                  <span className="text-primary">₦{finalTotal.toFixed(2)}</span>
+                  <span>Subtotal</span>
+                  <span className="text-primary">₦{totalPrice.toFixed(2)}</span>
                 </div>
+                <p className="text-[10px] text-muted-foreground mt-1">* Final total including global delivery will be sent to you via WhatsApp.</p>
               </div>
 
               {/* Contact Info */}

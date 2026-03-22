@@ -5,6 +5,7 @@ const orderItemSchema = z.object({
   name: z.string().min(1),
   qty: z.number().int().positive(),
   price: z.number().nonnegative(),
+  unitType: z.enum(['unit', 'carton']).default('unit'),
 });
 
 export const createOrderSchema = z.object({

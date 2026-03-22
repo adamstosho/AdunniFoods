@@ -8,6 +8,7 @@ export interface OrderItem {
   name: string;
   qty: number;
   price: number;
+  unitType: 'unit' | 'carton';
 }
 
 export interface OrderDocument extends Document {
@@ -27,6 +28,7 @@ const OrderItemSchema = new Schema<OrderItem>({
   name: { type: String, required: true },
   qty: { type: Number, required: true, min: 1 },
   price: { type: Number, required: true, min: 0 },
+  unitType: { type: String, enum: ['unit', 'carton'], required: true, default: 'unit' },
 });
 
 const OrderSchema = new Schema<OrderDocument>({

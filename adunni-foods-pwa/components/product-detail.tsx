@@ -22,6 +22,7 @@ export function ProductDetail({ slug }: ProductDetailProps) {
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(0)
   const [isWishlisted, setIsWishlisted] = useState(false)
+  const [unitType, setUnitType] = useState<'unit' | 'carton'>('unit')
   const { addItem } = useCartStore()
   const router = useRouter()
 
@@ -53,7 +54,7 @@ export function ProductDetail({ slug }: ProductDetailProps) {
 
   const handleAddToCart = () => {
     if (product) {
-      addItem(product, quantity)
+      addItem(product, quantity, unitType)
     }
   }
 
@@ -168,11 +169,35 @@ export function ProductDetail({ slug }: ProductDetailProps) {
 
             <h1 className="font-heading font-bold text-3xl lg:text-4xl text-foreground mb-4">{product.name}</h1>
 
-            <div className="flex items-center gap-4 mb-4">
-              <div className="text-3xl font-bold text-primary">₦{product.price.toFixed(2)}</div>
-              <Badge variant={product.stock > 0 ? "secondary" : "destructive"}>
-                {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
-              </Badge>
+            <div className="flex flex-col gap-2 mb-4">
+              <div className="flex items-center gap-4">
+                <div className="text-3xl font-bold text-primary">
+                  ₦{(unitType === 'carton' && product.cartonPrice ? product.cartonPrice : product.price).toFixed(2)}
+                </div>
+                <Badge variant={product.stock > 0 ? "secondary" : "destructive"}>
+                  {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
+                </Badge>
+              </div>
+              {product.cartonPrice && (
+                <div className="flex gap-2">
+                   <Button 
+                    variant={unitType === 'unit' ? 'default' : 'outline'} 
+                    size="sm" 
+                    onClick={() => setUnitType('unit')}
+                    className="h-8 text-xs"
+                  >
+                    Single Unit (₦{product.price.toFixed(0)})
+                  </Button>
+                  <Button 
+                    variant={unitType === 'carton' ? 'default' : 'outline'} 
+                    size="sm" 
+                    onClick={() => setUnitType('carton')}
+                    className="h-8 text-xs"
+                  >
+                    Carton of {product.unitsPerCarton || 1} (₦{product.cartonPrice.toFixed(0)})
+                  </Button>
+                </div>
+              )}
             </div>
 
             {product.description && (
@@ -213,7 +238,7 @@ export function ProductDetail({ slug }: ProductDetailProps) {
                 disabled={product.stock === 0}
                 className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground h-12 text-lg"
               >
-                Add to Cart - ₦{(product.price * quantity).toFixed(2)}
+                Add to Cart - ₦{((unitType === 'carton' && product.cartonPrice ? product.cartonPrice : product.price) * quantity).toFixed(2)}
               </Button>
               <Button
                 variant="outline"

@@ -60,7 +60,7 @@ export function CartSidebar() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => updateQuantity(item.product, item.qty - 1)}
+                            onClick={() => updateQuantity(item.product, item.qty - 1, item.unitType)}
                             className="w-8 h-8 p-0"
                           >
                             <Minus className="w-3 h-3" />
@@ -69,7 +69,7 @@ export function CartSidebar() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => updateQuantity(item.product, item.qty + 1)}
+                            onClick={() => updateQuantity(item.product, item.qty + 1, item.unitType)}
                             className="w-8 h-8 p-0"
                           >
                             <Plus className="w-3 h-3" />
@@ -80,7 +80,7 @@ export function CartSidebar() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => removeItem(item.product)}
+                        onClick={() => removeItem(item.product, item.unitType)}
                         className="text-destructive hover:text-destructive p-1"
                       >
                         <X className="w-4 h-4" />

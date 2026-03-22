@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Model, Types } from 'mongoose';
 
 export type ProductCategory = 'ripe_plantain_chips' | 'unripe_plantain_chips' | 'fruit_juice' | 'loaded_plantain';
 export type ProductUnit = 'kg' | 'piece' | 'bottle';
-export type PackagingType = 'bucket' | 'refill' | 'none';
+export type PackagingType = 'plastic' | 'pouch' | 'none';
 
 export interface ProductDocument extends Document {
   _id: Types.ObjectId;
@@ -14,6 +14,8 @@ export interface ProductDocument extends Document {
   unit: ProductUnit;
   weight?: number; // Weight in kg (for kg-based products)
   packagingType: PackagingType;
+  cartonPrice?: number;
+  unitsPerCarton?: number;
   images: string[];
   stock: number;
   createdAt: Date;
@@ -39,9 +41,11 @@ const ProductSchema = new Schema<ProductDocument>({
   weight: { type: Number, min: 0 }, // Optional weight in kg
   packagingType: {
     type: String,
-    enum: ['bucket', 'refill', 'none'],
+    enum: ['plastic', 'pouch', 'none'],
     default: 'none'
   },
+  cartonPrice: { type: Number, min: 0 },
+  unitsPerCarton: { type: Number, min: 1, default: 1 },
   images: { type: [String], default: [] },
   stock: { type: Number, default: 0, min: 0 },
   createdAt: { type: Date, default: Date.now },

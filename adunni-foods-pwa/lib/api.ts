@@ -6,7 +6,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api"
 
 export type ProductCategory = 'ripe_plantain_chips' | 'unripe_plantain_chips' | 'fruit_juice' | 'loaded_plantain'
 export type ProductUnit = 'kg' | 'piece' | 'bottle'
-export type PackagingType = 'bucket' | 'refill' | 'none'
+export type PackagingType = 'plastic' | 'pouch' | 'none'
 
 export interface Product {
   _id: string
@@ -18,6 +18,8 @@ export interface Product {
   unit: ProductUnit
   weight?: number
   packagingType: PackagingType
+  cartonPrice?: number
+  unitsPerCarton?: number
   stock: number
   images: string[]
   createdAt: string
@@ -28,6 +30,7 @@ export interface OrderItem {
   name: string
   qty: number
   price: number
+  unitType: 'unit' | 'carton'
 }
 
 export interface Order {

@@ -11,7 +11,8 @@ export function buildWhatsAppUrl(order: OrderDocument) {
   lines.push(`Address: ${order.address}`);
   lines.push('Items:');
   order.items.forEach((it) => {
-    lines.push(`- ${it.name} x${it.qty} — ₦${it.price * it.qty}`);
+    const unitSuffix = it.unitType === 'carton' ? ' (Carton)' : '';
+    lines.push(`- ${it.name}${unitSuffix} x${it.qty} — ₦${it.price * it.qty}`);
   });
   lines.push(`Total: ₦${order.totalAmount}`);
   lines.push(`Payment: ${order.paymentMethod}`);

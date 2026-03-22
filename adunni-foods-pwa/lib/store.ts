@@ -9,9 +9,9 @@ interface CartItem extends OrderItem {
 interface CartStore {
   items: CartItem[]
   isOpen: boolean
-  addItem: (product: Product, quantity?: number) => void
-  removeItem: (productId: string) => void
-  updateQuantity: (productId: string, quantity: number) => void
+  addItem: (product: Product, quantity?: number, unitType?: 'unit' | 'carton') => void
+  removeItem: (productId: string, unitType?: 'unit' | 'carton') => void
+  updateQuantity: (productId: string, quantity: number, unitType?: 'unit' | 'carton') => void
   clearCart: () => void
   getTotalItems: () => number
   getTotalPrice: () => number
@@ -25,47 +25,55 @@ export const useCartStore = create<CartStore>()(
       items: [],
       isOpen: false,
 
-      addItem: (product: Product, quantity = 1) => {
+      addItem: (product: Product, quantity = 1, unitType = 'unit') => {
         set((state) => {
-          const existingItem = state.items.find((item) => item.product === product._id)
-
+          const price = unitType === 'carton' && product.cartonPrice ? product.cartonPrice : product.price
+          const existingItem = state.items.find(
+            (item) => item.product === product._id && item.unitType === unitType
+          )
+    
           if (existingItem) {
             return {
               items: state.items.map((item) =>
-                item.product === product._id ? { ...item, qty: item.qty + quantity } : item,
+                item.product === product._id && item.unitType === unitType
+                  ? { ...item, qty: item.qty + quantity }
+                  : item
               ),
             }
           }
-
+    
           return {
             items: [
               ...state.items,
               {
                 product: product._id,
-                name: product.name,
+                name: unitType === 'carton' ? `${product.name} (Carton)` : product.name,
                 qty: quantity,
-                price: product.price,
+                price: price,
+                unitType: unitType as 'unit' | 'carton',
                 image: product.images[0],
               },
             ],
           }
         })
       },
-
-      removeItem: (productId: string) => {
+    
+      removeItem: (productId: string, unitType = 'unit') => {
         set((state) => ({
-          items: state.items.filter((item) => item.product !== productId),
+          items: state.items.filter((item) => !(item.product === productId && item.unitType === unitType)),
         }))
       },
-
-      updateQuantity: (productId: string, quantity: number) => {
+    
+      updateQuantity: (productId: string, quantity: number, unitType = 'unit') => {
         if (quantity <= 0) {
-          get().removeItem(productId)
+          get().removeItem(productId, unitType)
           return
         }
-
+    
         set((state) => ({
-          items: state.items.map((item) => (item.product === productId ? { ...item, qty: quantity } : item)),
+          items: state.items.map((item) =>
+            item.product === productId && item.unitType === unitType ? { ...item, qty: quantity } : item
+          ),
         }))
       },
 
