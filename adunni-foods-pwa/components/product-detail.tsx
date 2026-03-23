@@ -106,7 +106,7 @@ export function ProductDetail({ slug }: ProductDetailProps) {
       : [`/placeholder.svg?height=600&width=600&query=delicious ${product.name} plantain chips golden crispy detailed`]
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 pb-32 lg:pb-8">
       {/* Breadcrumb */}
       <nav className="mb-8">
         <div className="flex items-center space-x-2 text-sm text-muted-foreground">
@@ -339,6 +339,25 @@ export function ProductDetail({ slug }: ProductDetailProps) {
             </Card>
           </TabsContent>
         </Tabs>
+      </div>
+
+      {/* Sticky Mobile Add to Cart Bar */}
+      <div className="fixed bottom-16 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-t border-border p-4 lg:hidden safe-area-pb shadow-[0_-8px_20px_rgba(0,0,0,0.05)]">
+        <div className="flex items-center justify-between gap-4 max-w-md mx-auto">
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-extrabold tracking-widest">Total Price</span>
+            <span className="text-xl font-bold text-primary leading-none">
+              ₦{((unitType === 'carton' && product.cartonPrice ? product.cartonPrice : product.price) * quantity).toLocaleString()}
+            </span>
+          </div>
+          <Button
+            onClick={handleAddToCart}
+            disabled={product.stock === 0}
+            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground h-12 font-bold shadow-lg active:scale-95 transition-all duration-200"
+          >
+            Add to Cart
+          </Button>
+        </div>
       </div>
     </div>
   )

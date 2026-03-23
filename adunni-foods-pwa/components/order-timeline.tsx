@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle, Clock, Package, Truck, Home } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface OrderTimelineProps {
   currentStatus: string
@@ -61,11 +62,13 @@ export function OrderTimeline({ currentStatus }: OrderTimelineProps) {
         <div className="relative">
           {/* Progress Line */}
           <div className="absolute left-6 top-12 bottom-0 w-0.5 bg-border" />
-          <div
-            className="absolute left-6 top-12 w-0.5 bg-primary transition-all duration-500"
-            style={{
-              height: `${(currentStepIndex / (steps.length - 1)) * 100}%`,
+          <motion.div
+            className="absolute left-6 top-12 w-0.5 bg-primary origin-top"
+            initial={{ height: 0 }}
+            animate={{ 
+              height: `${(currentStepIndex / (steps.length - 1)) * 90}%` // Subtract a bit for the last icon
             }}
+            transition={{ duration: 1, ease: "easeOut" }}
           />
 
           <div className="space-y-8">
@@ -76,16 +79,48 @@ export function OrderTimeline({ currentStatus }: OrderTimelineProps) {
               return (
                 <div key={step.id} className="relative flex items-start gap-4">
                   {/* Step Icon */}
-                  <div
+                  <motion.div
+                    initial={false}
+                    animate={{
+                      scale: status === "current" ? [1, 1.1, 1] : 1,
+                      backgroundColor: status === "completed" || status === "current" ? "var(--primary)" : "var(--background)",
+                    }}
+                    transition={{
+                      scale: status === "current" ? { repeat: Infinity, duration: 2 } : { duration: 0.3 },
+                      duration: 0.5
+                    }}
                     className={cn(
                       "relative z-10 flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-300",
-                      status === "completed" && "bg-primary border-primary text-primary-foreground",
-                      status === "current" && "bg-primary border-primary text-primary-foreground animate-pulse",
-                      status === "pending" && "bg-background border-border text-muted-foreground",
+                      status === "completed" && "border-primary text-primary-foreground",
+                      status === "current" && "border-primary text-primary-foreground shadow-[0_0_15px_rgba(var(--primary-rgb),0.5)]",
+                      status === "pending" && "border-border text-muted-foreground",
                     )}
                   >
-                    {status === "completed" ? <CheckCircle className="w-6 h-6" /> : <StepIcon className="w-6 h-6" />}
-                  </div>
+                    <AnimatePresence mode="wait">
+                      {status === "completed" ? (
+                        <motion.div
+                          key="check"
+                          initial={{ scale: 0, rotate: -45 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          exit={{ scale: 0 }}
+                        >
+                          <CheckCircle className="w-6 h-6" />
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="icon"
+                          initial={{ opacity: 0 }}
+                          animate={{ 
+                            opacity: 1,
+                            y: status === "current" && step.id === "Out for Delivery" ? [0, -4, 0] : 0 
+                          }}
+                          transition={status === "current" && step.id === "Out for Delivery" ? { repeat: Infinity, duration: 1.5 } : {}}
+                        >
+                          <StepIcon className="w-6 h-6" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
 
                   {/* Step Content */}
                   <div className="flex-1 min-w-0">

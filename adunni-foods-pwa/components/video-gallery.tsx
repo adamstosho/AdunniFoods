@@ -42,7 +42,7 @@ const videos: Video[] = [
   {
     id: 4,
     title: "Crispy Perfection",
-    videoUrl: "https://www.instagram.com/adunnifoods_plantainchips/reel/DS-cedfjU41/",
+    videoUrl: "https://www.instagram.com/reels/DWOMMbWjTw9/",
     duration: "0:25",
     type: "instagram" as const,
   },

@@ -39,7 +39,7 @@ const videos: Video[] = [
     id: 4,
     title: "Crispy Perfection",
     thumbnail: "/gallery-product-3.png",
-    videoUrl: "https://www.instagram.com/reel/DAq7GmqM63D/embed/",
+    videoUrl: "https://www.instagram.com/reels/DWOMMbWjTw9/embed/",
     description: "Our commitment to quality, from harvest to your table",
   },
 ]

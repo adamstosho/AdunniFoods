@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle, MessageCircle, Home, Package, Copy, Check } from "lucide-react"
 import Link from "next/link"
+import { motion } from "framer-motion"
 
 import { useSettings } from "@/lib/hooks"
 
@@ -26,6 +27,43 @@ export function OrderSuccess() {
       setWhatsappUrl(storedWhatsappUrl)
     }
 
+    // Trigger celebratory confetti with CDN fallback
+    const triggerConfetti = async () => {
+      try {
+        let confettiLib: any
+        try {
+          // Try local package import first
+          const module = await import("canvas-confetti")
+          confettiLib = module.default || module
+        } catch (importError) {
+          console.log("[v0] Local confetti not found, trying CDN fallback...")
+          // Fallback to CDN for the "WOW" effect if package install failed
+          if (typeof window !== "undefined") {
+            const script = document.createElement("script")
+            script.src = "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"
+            document.head.appendChild(script)
+            await new Promise((resolve) => (script.onload = resolve))
+            // @ts-ignore
+            confettiLib = window.confetti
+          }
+        }
+
+        if (confettiLib) {
+          confettiLib({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ["#D4AF37", "#f59e0b", "#92400e"], // Gold and brand colors
+            zIndex: 9999,
+          })
+        }
+      } catch (error) {
+        console.warn("Confetti failed to load:", error)
+      }
+    }
+
+    triggerConfetti()
+
     // Clear stored data after use
     sessionStorage.removeItem("lastOrderId")
     sessionStorage.removeItem("whatsappUrl")
@@ -45,9 +83,24 @@ export function OrderSuccess() {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-2xl mx-auto text-center">
         {/* Success Icon */}
-        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <CheckCircle className="w-12 h-12 text-green-600" />
-        </div>
+        <motion.div 
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ 
+            type: "spring",
+            stiffness: 260,
+            damping: 20,
+            delay: 0.1
+          }}
+          className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-100/50"
+        >
+          <motion.div
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+          >
+            <CheckCircle className="w-12 h-12 text-green-600" />
+          </motion.div>
+        </motion.div>
 
         {/* Success Message */}
         <h1 className="font-heading font-bold text-3xl lg:text-4xl text-foreground mb-4">Order Confirmed!</h1>
