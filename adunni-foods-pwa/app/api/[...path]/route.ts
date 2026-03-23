@@ -15,10 +15,10 @@ function backendUrl(req: NextRequest, pathSegments: string[]) {
 }
 
 function cachePolicyFor(pathname: string) {
-  // Keep the app fast while staying reasonably fresh.
-  if (pathname.startsWith("/products")) return { revalidate: 60, tag: "products" }
-  if (pathname.startsWith("/reviews")) return { revalidate: 60, tag: "reviews" }
-  if (pathname.startsWith("/settings/store")) return { revalidate: 300, tag: "store-settings" }
+  // Reduced cache for products and reviews to ensure the user sees updates quickly.
+  if (pathname.startsWith("/products")) return { revalidate: 10, tag: "products" }
+  if (pathname.startsWith("/reviews")) return { revalidate: 10, tag: "reviews" }
+  if (pathname.startsWith("/settings/store")) return { revalidate: 60, tag: "store-settings" }
   if (pathname.startsWith("/orders")) return { revalidate: 0 as const, tag: "orders" }
   if (pathname.startsWith("/notifications")) return { revalidate: 0 as const, tag: "notifications" }
   return { revalidate: 0 as const, tag: "api" }

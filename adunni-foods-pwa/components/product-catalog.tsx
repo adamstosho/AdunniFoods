@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
-import { Search, Filter, Star, Plus, Grid, List } from "lucide-react"
+import { Search, Filter, Star, Plus, Grid, List, Package, Boxes, ShoppingCart } from "lucide-react"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useCartStore } from "@/lib/store"
 import { api, type Product } from "@/lib/api"
 import Link from "next/link"
@@ -19,7 +20,8 @@ export function ProductCatalog() {
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState("name")
-  const [priceRange, setPriceRange] = useState([0, 100])
+  const [priceRange, setPriceRange] = useState([0, 200000])
+  const [maxPriceLimit, setMaxPriceLimit] = useState(200000)
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [showFilters, setShowFilters] = useState(false)
   const { addItem } = useCartStore()
@@ -34,11 +36,13 @@ export function ProductCatalog() {
         console.log("[v0] Products response:", response)
         if (response.success && response.data) {
           setProducts(response.data)
-          // Set initial price range based on products
-          const prices = response.data.map((p) => p.price)
-          const maxPrice = Math.max(...prices)
-          setPriceRange([0, Math.ceil(maxPrice)])
-          console.log("[v0] Products loaded successfully:", response.data.length)
+          // Set initial price range based on products (including cartons)
+          const allPrices = response.data.flatMap((p) => [p.price, p.cartonPrice].filter(Boolean) as number[])
+          const max = Math.max(...allPrices, 200000) 
+          const roundedMax = Math.ceil(max / 1000) * 1000
+          setMaxPriceLimit(roundedMax)
+          setPriceRange([0, roundedMax])
+          console.log("[v0] Products loaded successfully:", response.data.length, "Max price:", roundedMax)
         }
       } catch (error) {
         console.error("[v0] Failed to fetch products:", error)
@@ -56,7 +60,8 @@ export function ProductCatalog() {
       const matchesSearch =
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
-      const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1]
+      const productPrices = [product.price, product.cartonPrice].filter(Boolean) as number[]
+      const matchesPrice = productPrices.some(p => p >= priceRange[0] && p <= priceRange[1])
       return matchesSearch && matchesPrice
     })
 
@@ -77,8 +82,8 @@ export function ProductCatalog() {
     return filtered
   }, [products, searchQuery, sortBy, priceRange])
 
-  const handleAddToCart = (product: Product) => {
-    addItem(product)
+  const handleAddToCart = (product: Product, unitType: 'unit' | 'carton' = 'unit') => {
+    addItem(product, 1, unitType)
   }
 
   if (error) {
@@ -192,9 +197,9 @@ export function ProductCatalog() {
                   <Slider
                     value={priceRange}
                     onValueChange={setPriceRange}
-                    max={100}
+                    max={maxPriceLimit}
                     min={0}
-                    step={5}
+                    step={Math.max(100, Math.floor(maxPriceLimit / 100))}
                     className="mb-2"
                   />
                   <div className="flex justify-between text-sm text-muted-foreground">
@@ -226,7 +231,7 @@ export function ProductCatalog() {
           <Button
             onClick={() => {
               setSearchQuery("")
-              setPriceRange([0, 100])
+              setPriceRange([0, maxPriceLimit])
             }}
           >
             Clear Filters
@@ -260,7 +265,7 @@ export function ProductCatalog() {
               <ProductCard
                 product={product}
                 viewMode={viewMode}
-                onAddToCart={() => handleAddToCart(product)}
+                onAddToCart={(unitType) => handleAddToCart(product, unitType)}
               />
             </motion.div>
           ))}
@@ -273,10 +278,12 @@ export function ProductCatalog() {
 interface ProductCardProps {
   product: Product
   viewMode: "grid" | "list"
-  onAddToCart: () => void
+  onAddToCart: (unitType: 'unit' | 'carton') => void
 }
 
 function ProductCard({ product, viewMode, onAddToCart }: ProductCardProps) {
+  const [unitType, setUnitType] = useState<'unit' | 'carton'>('unit')
+
   if (viewMode === "list") {
     return (
       <Card className="overflow-hidden hover:shadow-lg transition-all duration-300">
@@ -306,21 +313,58 @@ function ProductCard({ product, viewMode, onAddToCart }: ProductCardProps) {
                   <span className="text-sm text-muted-foreground ml-2">(4.9)</span>
                 </div>
               </div>
-              <div className="text-2xl font-bold text-primary">₦{product.price.toFixed(2)}</div>
+              <div className="text-2xl font-bold text-primary">
+                {product.cartonPrice ? `From ₦${product.price.toLocaleString()}` : `₦${product.price.toLocaleString()}`}
+              </div>
             </div>
 
             {product.description && <p className="text-muted-foreground mb-4 line-clamp-2">{product.description}</p>}
+            
+            {product.cartonPrice && (
+              <div className="mb-4">
+                <Badge variant="outline" className="text-xs bg-primary/5 text-primary border-primary/20">
+                  Bulk/Carton options available
+                </Badge>
+              </div>
+            )}
 
-            <div className="flex items-center justify-between">
-              <Badge variant={product.stock > 0 ? "secondary" : "destructive"}>
-                {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
-              </Badge>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Badge variant={product.stock > 0 ? "secondary" : "destructive"}>
+                  {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
+                </Badge>
+                <div className="text-2xl font-bold text-primary">
+                  ₦{(unitType === 'carton' && product.cartonPrice ? product.cartonPrice : product.price).toLocaleString()}
+                </div>
+              </div>
+
+              {product.cartonPrice && (
+                <Tabs value={unitType} onValueChange={(v) => setUnitType(v as 'unit' | 'carton')} className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 p-1 bg-muted/30 rounded-full h-10 border border-border/50">
+                    <TabsTrigger 
+                      value="unit" 
+                      className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all duration-300 text-xs gap-2"
+                    >
+                      <Package className="w-3.5 h-3.5" />
+                      Single Unit
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="carton" 
+                      className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all duration-300 text-xs gap-2"
+                    >
+                      <Boxes className="w-3.5 h-3.5" />
+                      Carton
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              )}
+
               <Button
-                onClick={onAddToCart}
+                onClick={() => onAddToCart(unitType)}
                 disabled={product.stock === 0}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
               >
-                <Plus className="w-4 h-4 mr-2" />
+                <ShoppingCart className="w-4 h-4 mr-2" />
                 Add to Cart
               </Button>
             </div>
@@ -349,6 +393,11 @@ function ProductCard({ product, viewMode, onAddToCart }: ProductCardProps) {
         {product.stock === 0 && (
           <Badge variant="secondary" className="absolute top-4 left-4 shadow-md bg-white/90 text-black">Sold Out</Badge>
         )}
+        {product.cartonPrice && (
+          <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground shadow-md border-none">
+            Carton Available
+          </Badge>
+        )}
       </div>
 
       <CardContent className="flex flex-col flex-1 p-5 lg:p-6">
@@ -371,19 +420,57 @@ function ProductCard({ product, viewMode, onAddToCart }: ProductCardProps) {
 
         {!product.description && <div className="flex-1" />}
 
-        <div className="mt-auto pt-4 border-t border-border/40">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-muted-foreground">Price</span>
-            <span className="text-xl font-bold text-primary">
-              {product.cartonPrice ? `From ₦${product.price.toLocaleString()}` : `₦${product.price.toLocaleString()}`}
-            </span>
+        <div className="mt-auto pt-4 border-t border-border/40 space-y-4">
+          {product.cartonPrice && (
+            <Tabs value={unitType} onValueChange={(v) => setUnitType(v as 'unit' | 'carton')} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 p-1 bg-muted/30 rounded-full h-9 border border-border/50">
+                <TabsTrigger 
+                  value="unit" 
+                  className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all duration-300 text-[10px] uppercase tracking-wider font-bold gap-1.5"
+                >
+                  <Package className="w-3 h-3" />
+                  Unit
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="carton" 
+                  className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all duration-300 text-[10px] uppercase tracking-wider font-bold gap-1.5"
+                >
+                  <Boxes className="w-3 h-3" />
+                  Carton
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          )}
+
+          <div className="flex items-center justify-between min-h-[40px]">
+            <div className="flex flex-col">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                {unitType === 'carton' ? 'Carton Price' : 'Unit Price'}
+              </span>
+              <span className="text-xl font-bold text-primary leading-none">
+                ₦{(unitType === 'carton' && product.cartonPrice ? product.cartonPrice : product.price).toLocaleString()}
+              </span>
+            </div>
+            {product.cartonPrice && (
+              <div className="text-[10px] text-muted-foreground text-right leading-tight">
+                {unitType === 'unit' 
+                  ? `Carton: ₦${product.cartonPrice.toLocaleString()}` 
+                  : `Unit: ₦${product.price.toLocaleString()}`}
+              </div>
+            )}
           </div>
+          
           <Button
-            onClick={onAddToCart}
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-md transition-all hover:shadow-lg active:scale-[0.98]"
+            onClick={() => onAddToCart(unitType)}
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-md transition-all hover:shadow-lg active:scale-[0.98] h-10"
             disabled={product.stock === 0}
           >
-            {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
+            {product.stock === 0 ? "Out of Stock" : (
+              <span className="flex items-center justify-center">
+                <ShoppingCart className="w-4 h-4 mr-2" />
+                Add to Cart
+              </span>
+            )}
           </Button>
         </div>
       </CardContent>

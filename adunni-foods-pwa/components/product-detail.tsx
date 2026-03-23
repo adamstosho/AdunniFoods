@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Star, Plus, Minus, Heart, Share2, ArrowLeft, Truck, Shield, RotateCcw } from "lucide-react"
+import { Star, Plus, Minus, Heart, Share2, ArrowLeft, Truck, Shield, RotateCcw, Package, Boxes } from "lucide-react"
 import { useCartStore } from "@/lib/store"
 import { api, type Product } from "@/lib/api"
 import { ProductReviews } from "@/components/product-reviews"
@@ -32,15 +32,17 @@ export function ProductDetail({ slug }: ProductDetailProps) {
         setLoading(true)
         // Since the API uses ID instead of slug, we'll need to fetch all products
         // and find by slug. In a real app, you'd have a proper slug-based endpoint
-        const response = await api.getProducts({ limit: 100 })
-        if (response.success && response.data) {
-          const foundProduct = response.data.find((p) => p.slug === slug)
-          if (foundProduct) {
-            setProduct(foundProduct)
-          } else {
-            router.push("/products")
+          const response = await api.getProducts({ limit: 100 })
+          console.log("[v0] ProductDetail fetching for slug:", slug, "response success:", response.success)
+          if (response.success && response.data) {
+            const foundProduct = response.data.find((p) => p.slug === slug)
+            console.log("[v0] Product found:", foundProduct?.name, "cartonPrice:", foundProduct?.cartonPrice)
+            if (foundProduct) {
+              setProduct(foundProduct)
+            } else {
+              router.push("/products")
+            }
           }
-        }
       } catch (error) {
         console.error("Failed to fetch product:", error)
         router.push("/products")
@@ -172,31 +174,31 @@ export function ProductDetail({ slug }: ProductDetailProps) {
             <div className="flex flex-col gap-2 mb-4">
               <div className="flex items-center gap-4">
                 <div className="text-3xl font-bold text-primary">
-                  ₦{(unitType === 'carton' && product.cartonPrice ? product.cartonPrice : product.price).toFixed(2)}
+                  ₦{(unitType === 'carton' && product.cartonPrice ? product.cartonPrice : product.price).toLocaleString()}
                 </div>
                 <Badge variant={product.stock > 0 ? "secondary" : "destructive"}>
                   {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
                 </Badge>
               </div>
               {product.cartonPrice && (
-                <div className="flex gap-2">
-                   <Button 
-                    variant={unitType === 'unit' ? 'default' : 'outline'} 
-                    size="sm" 
-                    onClick={() => setUnitType('unit')}
-                    className="h-8 text-xs"
-                  >
-                    Single Unit (₦{product.price.toFixed(0)})
-                  </Button>
-                  <Button 
-                    variant={unitType === 'carton' ? 'default' : 'outline'} 
-                    size="sm" 
-                    onClick={() => setUnitType('carton')}
-                    className="h-8 text-xs"
-                  >
-                    Carton of {product.unitsPerCarton || 1} (₦{product.cartonPrice.toFixed(0)})
-                  </Button>
-                </div>
+                <Tabs value={unitType} onValueChange={(v) => setUnitType(v as 'unit' | 'carton')} className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 p-1 bg-muted/30 rounded-full h-12 border border-border/50">
+                    <TabsTrigger 
+                      value="unit" 
+                      className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300 text-sm font-medium gap-2.5"
+                    >
+                      <Package className="w-4 h-4" />
+                      Single Unit (₦{product.price.toLocaleString()})
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="carton" 
+                      className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300 text-sm font-medium gap-2.5"
+                    >
+                      <Boxes className="w-4 h-4" />
+                      Carton (₦{product.cartonPrice.toLocaleString()})
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
               )}
             </div>
 
